@@ -122,6 +122,11 @@ namespace ConsoleApp1
                     {
                         case 'E':
                         case 'G':
+                            if (BattleOver)
+                            {
+                                GlobalTurnCount--;
+                                return;
+                            }
                             PerformAttack(unitMap[x, y]);
                             break;
                     }
@@ -129,9 +134,11 @@ namespace ConsoleApp1
             }
         }
 
+        bool BattleOver => ElfCount <= 0 || GoblinCount <= 0;
+
         public void RunUntilBattleIsOver(bool outputMap = false)
         {
-            while (ElfCount > 0 && GoblinCount > 0)
+            while (!BattleOver)
             {
                 Step();
                 if (outputMap)
