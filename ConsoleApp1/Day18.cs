@@ -31,14 +31,17 @@ namespace ConsoleApp1
             GlobalMinuteCount++;
             for (int y = 0; y < mapHeight; y++)
             {
+                int fromY = Math.Max(0, y - 1);
+                int toY = Math.Min(y + 1, mapHeight - 1);
                 for (int x = 0; x < mapWidth; x++)
                 {
                     char tileChar = Map[y][x];
                     int treeCount = 0;
                     int lumberCount = 0;
-                    for (int xx = Math.Max(0, x - 1); xx <= Math.Min(x + 1, mapWidth - 1); xx++)
+                    int toX = Math.Min(x + 1, mapWidth - 1);
+                    for (int xx = Math.Max(0, x - 1); xx <= toX; xx++)
                     {
-                        for (int yy = Math.Max(0, y - 1); yy <= Math.Min(y + 1, mapHeight - 1); yy++)
+                        for (int yy = fromY; yy <= toY; yy++)
                         {
                             if (xx != x || yy != y)
                             {
