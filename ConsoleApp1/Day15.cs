@@ -98,6 +98,21 @@ namespace ConsoleApp1
             return sb.ToString();
         }
 
+        public string GetDistanceString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine();
+            for (int y = 0; y < mapHeight; y++)
+            {
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    sb.Append(distanceMap[x, y] == -1 ? "#" : distanceMap[x, y].ToString());
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
         public void Step()
         {
             GlobalTurnCount++;
@@ -105,20 +120,8 @@ namespace ConsoleApp1
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    switch (unitMap[x, y]?.Type)
-                    {
-                        case 'E':
-                        case 'G':
-                            PerformMove(unitMap[x, y]);
-                            break;
-                    }
-                }
-            }
-            for (int y = 0; y < mapHeight; y++)
-            {
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    switch (unitMap[x, y]?.Type)
+                    Unit unit = unitMap[x, y];
+                    switch (unit?.Type)
                     {
                         case 'E':
                         case 'G':
@@ -127,7 +130,10 @@ namespace ConsoleApp1
                                 GlobalTurnCount--;
                                 return;
                             }
-                            PerformAttack(unitMap[x, y]);
+                            if (unit.TurnCounter == GlobalTurnCount) continue;
+                            unit.TurnCounter = GlobalTurnCount;
+                            PerformMove(unit);
+                            PerformAttack(unit);
                             break;
                     }
                 }
@@ -148,12 +154,7 @@ namespace ConsoleApp1
 
         private void PerformMove(Unit unit)
         {
-            if (unit.TurnCounter == GlobalTurnCount) return;
-            unit.TurnCounter = GlobalTurnCount;
-
-            Array.Clear(distanceMap, 0, mapHeight * mapWidth);
-
-            var target = MovesFromLocation(1, unit.X, unit.Y, unit.Type);
+            var target = MoveFromLocationFindTarget(unit.X, unit.Y, unit.Type);
             if (target == null) return;
 
             int newX = unit.X;
@@ -185,6 +186,7 @@ namespace ConsoleApp1
             else if (unitMap[newX, newY] != target.Target)
                 throw new NotSupportedException();
         }
+
         private void PerformAttack(Unit unit)
         {
             char attackType = unit.Type == 'G' ? 'E' : 'G';
@@ -220,12 +222,113 @@ namespace ConsoleApp1
             }
         }
 
-        private int TargetHealth(Unit unit, char attackType)
+        private static int TargetHealth(Unit unit, char attackType)
         {
             if (unit == null || unit.Type != attackType) return int.MaxValue;
             return unit.Health;
         }
 
+        private void BuildDistanceMapFrom(int x, int y)
+        {
+            Array.Clear(distanceMap, 0, mapHeight * mapWidth);
+
+            // pre-init walls and obsticals
+            for (int testX = 0; testX < mapWidth; testX++)
+            {
+                for (int testY = 0; testY < mapHeight; testY++)
+                    if (unitMap[testX, testY] != null)
+                        distanceMap[testX, testY] = -1;
+            }
+            // except ourself
+            distanceMap[x, y] = 1;
+
+            int rowStart = y;
+            int rowEnd = y;
+            int columnStart = x;
+            int columnEnd = x;
+            bool finishedFilling = false;
+            while (!finishedFilling)
+            {
+                finishedFilling = (rowStart == 1 && columnStart == 1 && rowEnd == mapHeight - 2 && columnEnd == mapWidth - 2);
+                if (rowStart > 1) rowStart--;
+                if (columnStart > 1) columnStart--;
+                if (rowEnd < mapHeight - 2) rowEnd++;
+                if (columnEnd < mapWidth - 2) columnEnd++;
+
+                for (int testX = columnStart; testX <= columnEnd; testX++)
+                {
+                    for (int testY = rowStart; testY <= rowEnd; testY++)
+                    {
+                        if (finishedFilling || distanceMap[testX, testY] == 0)
+                        {
+                            int nearest = NearestStep(testX, testY);
+                            if (nearest < int.MaxValue && (distanceMap[testX, testY] == 0 || distanceMap[testX, testY] > nearest + 1))
+                            {
+                                distanceMap[testX, testY] = nearest + 1;
+                                finishedFilling = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private TargetInfo MoveFromLocationFindTarget(int x, int y, char unitType)
+        {
+            char attackType = unitType == 'G' ? 'E' : 'G';
+
+            BuildDistanceMapFrom(x, y);
+
+            TargetInfo target = null;
+            for (int testY = 1; testY < mapHeight - 1; testY++)
+            {
+                for (int testX = 1; testX < mapWidth - 1; testX++)
+                {
+                    if (unitMap[testX, testY]?.Type == attackType)
+                    {
+                        // is this target closer
+                        if (target == null || target.StepCount > NearestStep(testX, testY))
+                        {
+                            target = new TargetInfo()
+                            {
+                                StepCount = NearestStep(testX, testY),
+                                Target = unitMap[testX, testY],
+                            };
+                        }
+                    }
+                }
+            }
+
+            if (target != null)
+            {
+                BuildDistanceMapFrom(target.Target.X, target.Target.Y);
+                if (distanceMap[x, y - 1] == target.StepCount) target.Direction = Direction.Up;
+                else if (distanceMap[x - 1, y] == target.StepCount) target.Direction = Direction.Left;
+                else if (distanceMap[x + 1, y] == target.StepCount) target.Direction = Direction.Right;
+                else if (distanceMap[x, y + 1] == target.StepCount) target.Direction = Direction.Down;
+                else return null; // cannot move
+                return target;
+            }
+            return null;
+        }
+
+        private int NearestStep(int testX, int testY)
+        {
+            int nearest = int.MaxValue;
+            if (distanceMap[testX, testY - 1] > 0 && distanceMap[testX, testY - 1] < nearest)
+                nearest = distanceMap[testX, testY - 1];
+            if (distanceMap[testX - 1, testY] > 0 && distanceMap[testX - 1, testY] < nearest)
+                nearest = distanceMap[testX - 1, testY];
+            if (distanceMap[testX + 1, testY] > 0 && distanceMap[testX + 1, testY] < nearest)
+                nearest = distanceMap[testX + 1, testY];
+            if (distanceMap[testX, testY + 1] > 0 && distanceMap[testX, testY + 1] < nearest)
+                nearest = distanceMap[testX, testY + 1];
+            return nearest;
+        }
+
+
+
+        /*
         private TargetInfo MovesFromLocation(int stepCount, int x, int y, char unitType)
         {
             distanceMap[x, y] = stepCount;
@@ -264,7 +367,7 @@ namespace ConsoleApp1
                     return MovesFromLocation(stepCount, x, y, unitType);
             }
         }
-
+        */
         public void Part1()
         {
             RunUntilBattleIsOver();
