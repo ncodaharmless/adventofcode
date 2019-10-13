@@ -13,24 +13,24 @@ namespace ConsoleApp1
         public int TotalLumberyards => Map.SelectMany(m => m).Where(m => m == '#').Count();
 
         private int GlobalMinuteCount;
-        private string[] Map;
+        private char[][] Map;
+        private char[][] NewMap;
         private int mapHeight;
         private int mapWidth;
 
         public Day18(string input = SampleInput)
         {
-            Map = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+            Map = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
             mapHeight = Map.Length;
             mapWidth = Map[0].Length;
+            NewMap = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
         }
 
         public void Step()
         {
             GlobalMinuteCount++;
-            List<string> newMap = new List<string>();
             for (int y = 0; y < mapHeight; y++)
             {
-                string newMapRow = "";
                 for (int x = 0; x < mapWidth; x++)
                 {
                     char tileChar = Map[y][x];
@@ -42,15 +42,11 @@ namespace ConsoleApp1
                         {
                             if (xx != x || yy != y)
                             {
-                                switch (Map[yy][xx])
-                                {
-                                    case '|':
-                                        treeCount++;
-                                        break;
-                                    case '#':
-                                        lumberCount++;
-                                        break;
-                                }
+                                char m = Map[yy][xx];
+                                if (m == '|')
+                                    treeCount++;
+                                else if (m == '#')
+                                    lumberCount++;
                             }
                         }
                     }
@@ -60,16 +56,24 @@ namespace ConsoleApp1
                         tileChar = '#';
                     else if (tileChar == '#' && (lumberCount == 0 || treeCount == 0))
                         tileChar = '.';
-                    newMapRow += tileChar;
+                    NewMap[y][x] = tileChar;
                 }
-                newMap.Add(newMapRow);
             }
-            Map = newMap.ToArray();
+            var tmp = Map;
+            Map = NewMap;
+            NewMap = tmp;
         }
 
         public void Part1()
         {
             for (int i = 0; i < 10; i++)
+                Step();
+            Console.WriteLine(TotalLumberyards * TotalTrees);
+        }
+
+        public void Part2(int count = 1000000000)
+        {
+            for (int i = 0; i < count; i++)
                 Step();
             Console.WriteLine(TotalLumberyards * TotalTrees);
         }
@@ -80,7 +84,7 @@ namespace ConsoleApp1
             sb.AppendLine();
             sb.AppendLine($"After {GlobalMinuteCount} minutes:");
             for (int y = 0; y < mapHeight; y++)
-                sb.AppendLine(Map[y]);
+                sb.AppendLine(new String(Map[y]));
             return sb.ToString();
         }
 
@@ -311,6 +315,14 @@ After 10 minutes:
 
             Assert.AreEqual(37, test.TotalTrees);
             Assert.AreEqual(31, test.TotalLumberyards);
+        }
+
+        [TestMethod]
+        public void PerfTest()
+        {
+            var test = new Day18();
+            for (int i = 0; i < 100000; i++)
+                test.Step();
         }
     }
 }
