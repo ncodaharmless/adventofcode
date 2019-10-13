@@ -26,8 +26,10 @@ namespace ConsoleApp1
             NewMap = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
         }
 
-        public void Step()
+        public Tuple<int, int> Step()
         {
+            int totalTreeCount = 0;
+            int totalLumberCount = 0;
             GlobalMinuteCount++;
             for (int y = 0; y < mapHeight; y++)
             {
@@ -59,12 +61,15 @@ namespace ConsoleApp1
                         tileChar = '#';
                     else if (tileChar == '#' && (lumberCount == 0 || treeCount == 0))
                         tileChar = '.';
+                    if (tileChar == '|') totalTreeCount++;
+                    else if (tileChar == '#') totalLumberCount++;
                     NewMap[y][x] = tileChar;
                 }
             }
             var tmp = Map;
             Map = NewMap;
             NewMap = tmp;
+            return new Tuple<int, int>(totalLumberCount, totalTreeCount);
         }
 
         public void Part1()
@@ -74,11 +79,43 @@ namespace ConsoleApp1
             Console.WriteLine(TotalLumberyards * TotalTrees);
         }
 
-        public void Part2(int count = 1000000000)
+        //gay pattern searching
+        public void Part2(int count = 1000)
         {
+            List<int> totalPattern = new List<int>();
+            int patternIndex = 0;
+            bool patternFound = false;
             for (int i = 0; i < count; i++)
-                Step();
-            Console.WriteLine(TotalLumberyards * TotalTrees);
+            {
+                var result = Step();
+                if (i > 1000)
+                {
+                    int totalLumber = result.Item1;
+                    int totalTree = result.Item2;
+                    int total = totalLumber * totalTree;
+                    if (!patternFound)
+                    {
+                        if (!totalPattern.Contains(total))
+                            totalPattern.Add(total);
+                        else
+                        {
+                            //TEST PATTERN
+                            patternFound = true;
+                        }
+                    }
+                    else
+                    {
+                        patternIndex = (patternIndex + 1) % totalPattern.Count;
+                        if (totalPattern[patternIndex] != total)
+                        {
+                            throw new NotImplementedException();
+                        }
+                        int finalResult = totalPattern[((1000000000 - i) + patternIndex - 1) % totalPattern.Count];
+                        Console.WriteLine(finalResult);
+                        return;
+                    }
+                }
+            }
         }
 
         public string GetMapString()
