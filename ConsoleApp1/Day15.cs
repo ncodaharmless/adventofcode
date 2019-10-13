@@ -17,7 +17,7 @@ namespace ConsoleApp1
         public int GoblinCount;
         public int ElfCount;
 
-        public Day15(string input = InputData)
+        public Day15(string input = InputData, int elfAttackPower = 3, int goblinAttackPower = 3)
         {
             var map = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
             mapHeight = map.Length;
@@ -31,11 +31,11 @@ namespace ConsoleApp1
                     switch (map[y][x])
                     {
                         case 'E':
-                            unitMap[x, y] = new Unit() { Type = 'E', X = x, Y = y };
+                            unitMap[x, y] = new Unit() { Type = 'E', X = x, Y = y, AttackPower = elfAttackPower };
                             ElfCount++;
                             break;
                         case 'G':
-                            unitMap[x, y] = new Unit() { Type = 'G', X = x, Y = y };
+                            unitMap[x, y] = new Unit() { Type = 'G', X = x, Y = y, AttackPower = goblinAttackPower };
                             GoblinCount++;
                             break;
                         case '#':
@@ -209,7 +209,7 @@ namespace ConsoleApp1
             // if we are beside a target, attack
             if (Math.Abs(targetUnit.X - unit.X) + Math.Abs(targetUnit.Y - unit.Y) == 1)
             {
-                targetUnit.Health -= 3;
+                targetUnit.Health -= unit.AttackPower;
                 if (targetUnit.Health <= 0)
                 {
                     // unit killed
@@ -374,6 +374,21 @@ namespace ConsoleApp1
             Console.WriteLine(CalculateBattleOutcome());
         }
 
+        public static void Part2()
+        {
+            for (int elfAttackPower = 4; elfAttackPower < 1000; elfAttackPower++)
+            {
+                var game = new Day15(elfAttackPower: elfAttackPower);
+                int expected = game.ElfCount;
+                game.RunUntilBattleIsOver();
+                if (game.ElfCount == expected)
+                {
+                    Console.WriteLine("No elfs died with: " + elfAttackPower + " outcome: " + game.CalculateBattleOutcome());
+                    return;
+                }
+            }
+        }
+
         public enum Direction { Up, Down, Left, Right }
 
         public class TargetInfo
@@ -395,6 +410,7 @@ namespace ConsoleApp1
             public int Health = 200;
             public char Type;
             public int TurnCounter;
+            public int AttackPower;
 
             public override string ToString()
             {
