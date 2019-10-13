@@ -15,6 +15,8 @@ namespace ConsoleApp1
         int MinY = int.MaxValue;
         int MaxY = 0;
 
+        public int WaterTrappedCount;
+
         public int WaterTravelCount => waterTraveled.Count;
 
         public Day17(string input = SampleInput)
@@ -40,6 +42,12 @@ namespace ConsoleApp1
         {
             RunSimulation(new Point(500, MinY + 1));
             Console.WriteLine(WaterTravelCount);
+        }
+
+        public void Part2()
+        {
+            RunSimulation(new Point(500, MinY + 1));
+            Console.WriteLine(WaterTrappedCount);
         }
 
         internal void RunSimulation(Point dropletStart)
@@ -105,6 +113,7 @@ namespace ConsoleApp1
             Point p = droplet;
             while (!blocked.Contains(p))
             {
+                WaterTrappedCount++;
                 TrackTravel(p);
                 blocked.Add(p);
                 p = p.Left();
@@ -112,6 +121,7 @@ namespace ConsoleApp1
             p = droplet.Right();
             while (!blocked.Contains(p))
             {
+                WaterTrappedCount++;
                 TrackTravel(p);
                 blocked.Add(p);
                 p = p.Right();
@@ -1773,6 +1783,8 @@ x=504, y=10..13
 y=13, x=498..504");
             d.RunSimulation(new Day17.Point(500, 0));
             Assert.AreEqual(57, d.WaterTravelCount);
+
+            Assert.AreEqual(29, d.WaterTrappedCount);
         }
     }
 }
