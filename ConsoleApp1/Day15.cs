@@ -189,23 +189,20 @@ namespace ConsoleApp1
         {
             char attackType = unit.Type == 'G' ? 'E' : 'G';
 
-            List<Unit> possibleTargets = new List<Unit>();
-            //try up first
-            if (unitMap[unit.X, unit.Y - 1]?.Type == attackType)
-                possibleTargets.Add(unitMap[unit.X, unit.Y - 1]);
-            //left
-            if (unitMap[unit.X - 1, unit.Y]?.Type == attackType)
-                possibleTargets.Add(unitMap[unit.X - 1, unit.Y]);
-            //right
-            if (unitMap[unit.X + 1, unit.Y]?.Type == attackType)
-                possibleTargets.Add(unitMap[unit.X + 1, unit.Y]);
-            //bottom
-            if (unitMap[unit.X, unit.Y + 1]?.Type == attackType)
-                possibleTargets.Add(unitMap[unit.X, unit.Y + 1]);
-            // no target
-            if (possibleTargets.Count == 0) return;
+            Unit up = unitMap[unit.X, unit.Y - 1];
+            Unit left = unitMap[unit.X - 1, unit.Y];
+            Unit right = unitMap[unit.X + 1, unit.Y];
+            Unit down = unitMap[unit.X, unit.Y + 1];
 
-            var targetUnit = possibleTargets.OrderBy(t => t.Health).ThenBy(t => t.Y).ThenBy(t => t.X).First();
+            Unit targetUnit = down;
+            if (TargetHealth(right, attackType) <= TargetHealth(targetUnit, attackType))
+                targetUnit = right;
+            if (TargetHealth(left, attackType) <= TargetHealth(targetUnit, attackType))
+                targetUnit = left;
+            if (TargetHealth(up, attackType) <= TargetHealth(targetUnit, attackType))
+                targetUnit = up;
+
+            if (TargetHealth(targetUnit, attackType) == int.MaxValue) return;
 
             // if we are beside a target, attack
             if (Math.Abs(targetUnit.X - unit.X) + Math.Abs(targetUnit.Y - unit.Y) == 1)
@@ -221,6 +218,12 @@ namespace ConsoleApp1
                     unitMap[targetUnit.X, targetUnit.Y] = null;
                 }
             }
+        }
+
+        private int TargetHealth(Unit unit, char attackType)
+        {
+            if (unit == null || unit.Type != attackType) return int.MaxValue;
+            return unit.Health;
         }
 
         private TargetInfo MovesFromLocation(int stepCount, int x, int y, char unitType)
