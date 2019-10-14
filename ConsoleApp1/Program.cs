@@ -27,7 +27,8 @@ namespace ConsoleApp1
             //Day16.Part2();
             //new Day17().Part2();
             //new Day18().Part2();
-            new Day19().Part2();
+            //new Day19().Part2();
+            new Day20().Part1();
 
             Console.ReadLine();
         }
