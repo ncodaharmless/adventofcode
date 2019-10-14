@@ -9,9 +9,9 @@ namespace ConsoleApp1
 {
     class Day16
     {
-        static string[] opcodes = new string[] { "addr", "addi", "mulr", "muli", "banr", "bani", "borr", "bori", "setr", "seti", "gtir", "gtri", "gtrr", "eqir", "eqri", "eqrr" };
+        internal static string[] opcodes = new string[] { "addr", "addi", "mulr", "muli", "banr", "bani", "borr", "bori", "setr", "seti", "gtir", "gtri", "gtrr", "eqir", "eqri", "eqrr" };
 
-        private static void RunStatement(string opcode, int valueA, int valueB, int outputC, int[] registers)
+        internal static void RunStatement(string opcode, int valueA, int valueB, int outputC, int[] registers)
         {
             switch (opcode)
             {
