@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using ConsoleApp1.Utils;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,41 +136,6 @@ namespace ConsoleApp1
         }
 
         #region Point
-
-        public struct Point
-        {
-            public readonly int X;
-            public readonly int Y;
-
-            public Point(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-
-            public override int GetHashCode()
-            {
-                return ToString().GetHashCode();
-            }
-
-            public override string ToString()
-            {
-                return $"{X},{Y}";
-            }
-
-            public Point Below()
-            {
-                return new Point(X, Y + 1);
-            }
-            public Point Left()
-            {
-                return new Point(X - 1, Y);
-            }
-            public Point Right()
-            {
-                return new Point(X + 1, Y);
-            }
-        }
 
         #endregion
 
@@ -1781,7 +1747,7 @@ x=506, y=1..2
 x=498, y=10..13
 x=504, y=10..13
 y=13, x=498..504");
-            d.RunSimulation(new Day17.Point(500, 0));
+            d.RunSimulation(new Point(500, 0));
             Assert.AreEqual(57, d.WaterTravelCount);
 
             Assert.AreEqual(29, d.WaterTrappedCount);
