@@ -24,6 +24,38 @@ namespace ConsoleApp1
             return bots.Where(b => strongest.InRange(b)).Count();
         }
 
+        public int ShortestDistanceInRangeToZero()
+        {
+            Vector3 zero = new Vector3();
+
+            int[] xValues = bots.Select(b => b.Pos.X).Distinct().ToArray();
+            int[] yValues = bots.Select(b => b.Pos.Y).Distinct().ToArray();
+            int[] zValues = bots.Select(b => b.Pos.Z).Distinct().ToArray();
+            List<Vector3> matches = new List<Vector3>();
+            foreach (int x in xValues.OrderBy(x => Math.Abs(x)).Take(50))
+                foreach (int y in yValues.OrderBy(xx => Math.Abs(xx)).Take(50))
+                    foreach (int z in zValues.OrderBy(xxx => Math.Abs(xxx)).Take(50))
+                    {
+                        Vector3 v = new Vector3(x, y, z);
+                        matches.Add(v);
+                    }
+            matches = matches.OrderBy(m => Math.Abs(m.X) + Math.Abs(m.Y) + Math.Abs(m.Z)).ToList();
+
+            int distance = 0;
+            int targetCount = 0;
+            foreach (var v in matches)
+            {
+                int count = bots.Count(b => b.InRange(v));
+                if (count > targetCount)
+                {
+                    targetCount = count;
+                    distance = v.X + v.Y + v.Z;
+                }
+            }
+
+            return distance;
+        }
+
         #region Input
 
         const string Input = @"pos=<86508574,12573428,20533848>, r=83193725
@@ -1040,6 +1072,11 @@ pos=<86502897,4884925,40429628>, r=84009074";
             return b.Pos.ManhattanDistance(Pos) <= Radius;
         }
 
+        public bool InRange(Vector3 b)
+        {
+            return Pos.ManhattanDistance(b) <= Radius;
+        }
+
         public static NanoBot Parse(string input)
         {
             var m = Regex.Match(input, "pos=<([-0-9]+),([-0-9]+),([-0-9]+)>, r=([0-9]+)");
@@ -1072,12 +1109,26 @@ pos=<1,1,1>, r=1
 pos=<1,1,2>, r=1
 pos=<1,3,1>, r=1");
             Assert.AreEqual(7, test.CountNanobotsInRangeOfLargest());
+
+            test = new Day23(@"pos=<10,12,12>, r=2
+pos=<12,14,12>, r=2
+pos=<16,12,12>, r=4
+pos=<14,14,14>, r=6
+pos=<50,50,50>, r=200
+pos=<10,10,10>, r=5");
+            Assert.AreEqual(36, test.ShortestDistanceInRangeToZero());
         }
 
         [TestMethod]
         public void Part1()
         {
             Console.WriteLine(new Day23().CountNanobotsInRangeOfLargest());
+        }
+
+        [TestMethod]
+        public void Part2()
+        {
+            Console.WriteLine(new Day23().ShortestDistanceInRangeToZero());
         }
     }
 }

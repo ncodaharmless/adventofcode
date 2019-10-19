@@ -13,17 +13,22 @@ namespace ConsoleApp1
         public Point targetPoint;
         public int caveSystemDepth;
 
+        int areaWidth;
+        int areaHeight;
         int[][] erosionLevel;
 
         public Day22(int depth = 4002, int px = 5, int py = 746)
         {
             caveSystemDepth = depth;
             targetPoint = new Point(px, py);
-            erosionLevel = new int[px + 1][];
-            for (int x = 0; x <= px; x++)
+            const int extra = 10;
+            areaWidth = px + 1 + extra;
+            areaHeight = py + 1 + extra;
+            erosionLevel = new int[areaWidth][];
+            for (int x = 0; x < areaWidth; x++)
             {
-                erosionLevel[x] = new int[py + 1];
-                for (int y = 0; y <= py; y++) erosionLevel[x][y] = ErosionLevel(new Point(x, y));
+                erosionLevel[x] = new int[areaHeight];
+                for (int y = 0; y < areaHeight; y++) erosionLevel[x][y] = ErosionLevel(new Point(x, y));
             }
         }
 
@@ -59,6 +64,127 @@ namespace ConsoleApp1
         {
             return erosionLevel % 3;
         }
+
+
+        enum Tool { None, Torch, Climbing }
+
+        int[,] timeTakenNone;
+        int[,] timeTakenTorch;
+        int[,] timeTakenClimb;
+        internal int FastestTime()
+        {
+            timeTakenNone = new int[areaWidth, areaHeight];
+            timeTakenTorch = new int[areaWidth, areaHeight];
+            timeTakenClimb = new int[areaWidth, areaHeight];
+
+            timeTakenNone[targetPoint.X, targetPoint.Y] = int.MaxValue;
+            timeTakenTorch[targetPoint.X, targetPoint.Y] = 1;
+            timeTakenClimb[targetPoint.X, targetPoint.Y] = 8;
+            PopulateTimesToTravel(targetPoint.Up());
+
+            // normalise
+            for (int i = 0; i < 100; i++)
+            {
+                for (int x = 0; x < areaWidth; x++)
+                    for (int y = 0; y < areaHeight; y++)
+                    {
+                        timeTakenNone[x, y] = FastestTimeWithTool(new Point(x, y), Tool.None);
+                        timeTakenClimb[x, y] = FastestTimeWithTool(new Point(x, y), Tool.Climbing);
+                        timeTakenTorch[x, y] = FastestTimeWithTool(new Point(x, y), Tool.Torch);
+                    }
+
+            }
+
+            return Math.Min(timeTakenTorch[0, 0], Math.Min(timeTakenNone[0, 0], timeTakenClimb[0, 0]));
+        }
+
+        private void PopulateTimesToTravel(Point p)
+        {
+            if (p.X < 0 || p.Y < 0 || p.X >= areaWidth || p.Y >= areaHeight || (p.X == targetPoint.X && p.Y == targetPoint.Y)) return;
+            int timeNone = FastestTimeWithTool(p, Tool.None);
+            int timeClimb = FastestTimeWithTool(p, Tool.Climbing);
+            int timeTorch = FastestTimeWithTool(p, Tool.Torch);
+            if (timeTakenNone[p.X, p.Y] != timeNone || timeTakenClimb[p.X, p.Y] != timeClimb || timeTakenTorch[p.X, p.Y] != timeTorch)
+            {
+                timeTakenNone[p.X, p.Y] = timeNone;
+                timeTakenClimb[p.X, p.Y] = timeClimb;
+                timeTakenTorch[p.X, p.Y] = timeTorch;
+
+                PopulateTimesToTravel(p.Left());
+                PopulateTimesToTravel(p.Right());
+                PopulateTimesToTravel(p.Up());
+                PopulateTimesToTravel(p.Below());
+            }
+
+        }
+
+        private int FastestTimeWithTool(Point p, Tool t)
+        {
+            return Math.Min(Math.Min(
+                FastestTimeWithTool(p, Tool.Climbing, t),
+                FastestTimeWithTool(p, Tool.None, t))
+                , FastestTimeWithTool(p, Tool.Torch, t));
+        }
+        private int FastestTimeWithTool(Point p, Tool fromTool, Tool t)
+        {
+            if (NeedToolChange(p, fromTool)) return int.MaxValue;
+
+            var fastP = p.Left();
+            int fastestTime = TimeFromPoint(fastP, fromTool, t);
+            if (fastestTime > TimeFromPoint(p.Up(), fromTool, t))
+            {
+                fastestTime = TimeFromPoint(p.Up(), fromTool, t);
+                fastP = p.Up();
+            }
+            if (fastestTime > TimeFromPoint(p.Right(), fromTool, t))
+            {
+                fastestTime = TimeFromPoint(p.Right(), fromTool, t);
+                fastP = p.Right();
+            }
+            if (fastestTime > TimeFromPoint(p.Below(), fromTool, t))
+            {
+                fastestTime = TimeFromPoint(p.Below(), fromTool, t);
+                fastP = p.Below();
+            }
+            return fastestTime;
+        }
+
+        private int TimeFromPoint(Point from, Tool fromTool, Tool toTool)
+        {
+            if (from.X < 0 || from.Y < 0 || from.X >= areaWidth || from.Y >= areaHeight) return int.MaxValue;
+
+            int fromTime;
+            switch (fromTool)
+            {
+                case Tool.Climbing:
+                    fromTime = timeTakenClimb[from.X, from.Y];
+                    break;
+                case Tool.Torch:
+                    fromTime = timeTakenTorch[from.X, from.Y];
+                    break;
+                default:
+                    fromTime = timeTakenNone[from.X, from.Y];
+                    break;
+            }
+            if (fromTime == 0 || fromTime == int.MaxValue) return int.MaxValue;
+
+            return fromTime + (fromTool != toTool ? 8 : 1);
+        }
+
+        private bool NeedToolChange(Point to, Tool current)
+        {
+            switch (RegionType(erosionLevel[to.X][to.Y]))
+            {
+                case 0:
+                    return (current != Tool.None);
+                case 1:
+                    return (current != Tool.Torch);
+                case 2:
+                    return (current != Tool.Climbing);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 
     [TestClass]
@@ -83,12 +209,20 @@ namespace ConsoleApp1
             Assert.AreEqual(510, test.ErosionLevel(new Point(10, 10)));
 
             Assert.AreEqual(114, test.TotalRisk());
+
+            Assert.AreEqual(45, test.FastestTime());
         }
 
         [TestMethod]
         public void Part1()
         {
             Console.WriteLine(new Day22().TotalRisk());
+        }
+
+        [TestMethod]
+        public void Part2()
+        {
+            Console.WriteLine(new Day22().FastestTime());
         }
     }
 }

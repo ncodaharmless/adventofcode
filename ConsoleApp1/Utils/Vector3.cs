@@ -12,11 +12,25 @@ namespace ConsoleApp1.Utils
         public int Y;
         public int Z;
 
+        public Vector3(int x,int y, int z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public Vector3()
+        {
+        }
 
         public int ManhattanDistance(Vector3 b)
         {
             return Math.Abs(X - b.X) + Math.Abs(Y - b.Y) + Math.Abs(Z - b.Z);
         }
 
+        public override string ToString()
+        {
+            return $"{X},{Y},{Z}";
+        }
     }
 }
