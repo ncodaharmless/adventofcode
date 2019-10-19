@@ -100,7 +100,7 @@ Infection:
 729 units each with 41762 hit points (weak to bludgeoning, fire) with an attack that does 109 fire damage at initiative 7
 3690 units each with 36699 hit points with an attack that does 17 slashing damage at initiative 19";
 
-        internal int CombatUntilFinished()
+        internal int CombatUntilFinished(bool justTeam2 = false)
         {
             while (true)
             {
@@ -114,14 +114,17 @@ Infection:
                     else
                         team2 += unit.Count;
                 if (team1 == 0 || team2 == 0)
-                    return team1 + team2;
+                    if (justTeam2)
+                        return team2;
+                    else
+                        return team1 + team2;
             }
         }
 
         int roundNumber;
         internal void Combat()
         {
-            Console.WriteLine($"----- COMBAT {++roundNumber} -----");
+            roundNumber++;
             foreach (var unit in UnitGroups)
                 unit.InitRound();
 
@@ -280,28 +283,17 @@ Infection:
         public void Part2()
         {
             int boost = 0;
-            //while (true)
-            //{
-            //    var test = new Day24();
-            //    test.UnitGroups[0].AttackDamage += boost;
-            //    test.CombatUntilFinished();
-            //    if (!test.Stalemate && test.UnitGroups[0].IsImmuneSystem)
-            //    {
-            //        Console.WriteLine("Win with boost less than: " + boost);
-            //        boost -= 1000;
-            //        break;
-            //    }
-            //    boost += 1000;
-            //}
-            // lower than 371127
             while (true)
             {
                 var test = new Day24();
-                test.UnitGroups[0].AttackDamage += boost;
-                test.CombatUntilFinished();
+                foreach (var u in test.UnitGroups)
+                    if (u.IsImmuneSystem)
+                        u.AttackDamage += boost;
+                int countRemaining = test.CombatUntilFinished();
                 if (!test.Stalemate && test.UnitGroups[0].IsImmuneSystem)
                 {
-                    Console.WriteLine("Win with boost: " + boost);
+                    // boost is 79, remaining units 1852
+                    Console.WriteLine("Win with boost: " + boost + " : count " + countRemaining);
                     break;
                 }
                 boost += 1;
