@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace AdventOfCode.Year2018
 {
     class Day24
     {

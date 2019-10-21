@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1.Utils
+namespace AdventOfCode.Utils
 {
     public class Vector3
     {
