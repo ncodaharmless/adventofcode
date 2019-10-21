@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,6 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Misc\LargestRectangle.cs" />
+    <Compile Include="Misc\LexicographicOrder.cs" />
+    <Compile Include="Misc\Misc.cs" />
+    <Compile Include="Misc\Powerset.cs" />
+    <Compile Include="Year2018\Day02.cs" />
+    <Compile Include="Year2018\Day03.cs" />
+    <Compile Include="Year2018\Day04.cs" />
+    <Compile Include="Year2018\Day05.cs" />
+    <Compile Include="Year2018\Day06.cs" />
+    <Compile Include="Year2018\Day07.cs" />
+    <Compile Include="Year2018\Day08.cs" />
+    <Compile Include="Year2018\Day09.cs" />
     <Compile Include="Year2018\Day10.cs" />
     <Compile Include="Year2018\Day11.cs" />
     <Compile Include="Year2018\Day12.cs" />
@@ -71,11 +84,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
-      <Version>2.9.6</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="MSTest.TestAdapter">
       <Version>2.0.0</Version>
     </PackageReference>
