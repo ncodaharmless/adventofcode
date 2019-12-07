@@ -18,7 +18,7 @@ namespace AdventOfCode.Utils
                 Console.WriteLine(string.Join(",", item));
         }
 
-        public List<List<int>> GeneratePowerset(int[] input)
+        public static List<List<int>> GeneratePowerset(int[] input)
         {
             List<List<int>> result = new List<List<int>>();
             foreach (int inputItem in input)
@@ -36,7 +36,7 @@ namespace AdventOfCode.Utils
             return result;
         }
 
-        public List<List<int>> GeneratePowersetRecursive(int[] input)
+        public static List<List<int>> GeneratePowersetRecursive(int[] input)
         {
             List<List<int>> result = new List<List<int>>();
             PowerSetForItem(input, 0, new List<int>(), result);

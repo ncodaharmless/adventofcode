@@ -16,7 +16,7 @@ namespace AdventOfCode.Utils
             }
         }
 
-        public int[] NextOrder(int[] input)
+        public static int[] NextOrder(int[] input)
         {
             int[] result = new int[input.Length];
             Array.Copy(input, result, input.Length);
@@ -63,7 +63,7 @@ namespace AdventOfCode.Utils
             return result;
         }
 
-        private void Swap(int[] array, int indexA, int indexB)
+        private static void Swap(int[] array, int indexA, int indexB)
         {
             int temp = array[indexA];
             array[indexA] = array[indexB];
