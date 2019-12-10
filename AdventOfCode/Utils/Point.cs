@@ -45,6 +45,16 @@ namespace AdventOfCode.Utils
             return new Point(X + 1, Y);
         }
 
+        public double AngleTo(Point p2)
+        {
+            return ToDegrees(Math.Atan2(p2.Y - Y, p2.X - X));
+        }
+
+        private double ToDegrees(double angle)
+        {
+            return ((angle * 180 / Math.PI) + 360) % 360;
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Point p)
@@ -52,6 +62,11 @@ namespace AdventOfCode.Utils
                 return p.X == X && p.Y == Y;
             }
             return base.Equals(obj);
+        }
+
+        public int ManhattanDist(Point p)
+        {
+            return Math.Abs(p.X - X) + Math.Abs(p.Y - Y);
         }
     }
 
