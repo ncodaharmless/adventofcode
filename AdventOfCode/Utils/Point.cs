@@ -28,6 +28,55 @@ namespace AdventOfCode.Utils
             return $"{X},{Y}";
         }
 
+        public static Direction RotateLeft(Direction facing)
+        {
+            switch (facing)
+            {
+                case Direction.Up:
+                    return Direction.Left;
+                case Direction.Left:
+                    return Direction.Down;
+                case Direction.Down:
+                    return Direction.Right;
+                case Direction.Right:
+                    return Direction.Up;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        public static Direction RotateRight(Direction facing)
+        {
+            switch (facing)
+            {
+                case Direction.Up:
+                    return Direction.Right;
+                case Direction.Right:
+                    return Direction.Down;
+                case Direction.Down:
+                    return Direction.Left;
+                case Direction.Left:
+                    return Direction.Up;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        public Point MoveDirection(Direction dir)
+        {
+            switch (dir)
+            {
+                case Direction.Up:
+                    return Up();
+                case Direction.Down:
+                    return Below();
+                case Direction.Left:
+                    return Left();
+                case Direction.Right:
+                    return Right();
+
+                default: throw new NotSupportedException();
+            }
+        }
+
         public Point Below()
         {
             return new Point(X, Y + 1);
