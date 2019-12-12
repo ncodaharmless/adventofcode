@@ -68,44 +68,6 @@ namespace AdventOfCode.Year2019
             return Moons.Sum(m => m.TotalEnergy);
         }
 
-        static long LCM(long a, long b)
-        {
-            return Math.Abs(a * b) / GCD(a, b);
-        }
-        static long GCD(long a, long b)
-        {
-            return b == 0 ? a : GCD(b, a % b);
-        }
-        private static long LeastCommonMultiple(long[] numbers)
-        {
-            return numbers.Aggregate(LCM);
-            /*
-            long[] multiples = new long[numbers.Length];
-            long interval = numbers.Min();
-            long lcm = interval;
-            while (true)
-            {
-                bool same = true;
-                for (int i = 0; i < numbers.Length; i++)
-                {
-                    if (multiples[i] != lcm)
-                    {
-                        same = false;
-                        break;
-                    }
-                }
-                if (same)
-                    return lcm;
-
-                lcm += interval;
-                for (int i = 0; i < numbers.Length; i++)
-                {
-                    while (multiples[i] < lcm)
-                        multiples[i] += numbers[i];
-                }
-            }*/
-        }
-
         internal long Part2()
         {
             while (true)
@@ -128,7 +90,7 @@ namespace AdventOfCode.Year2019
                 cycles.Add(Moons[i].CycleFinderY.Cycle.Length);
                 cycles.Add(Moons[i].CycleFinderZ.Cycle.Length);
             }
-            long lcm = LeastCommonMultiple(cycles.ToArray());
+            long lcm = MathUtil.LCM(cycles.Distinct().ToArray());
 
             return lcm;
         }

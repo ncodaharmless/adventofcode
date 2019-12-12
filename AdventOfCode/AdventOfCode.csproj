@@ -53,6 +53,7 @@
     <Compile Include="Utils\CycleFinder.cs" />
     <Compile Include="Utils\Direction.cs" />
     <Compile Include="Utils\Line.cs" />
+    <Compile Include="Utils\MathUtil.cs" />
     <Compile Include="Utils\StringExt.cs" />
     <Compile Include="Year2018\Day02.cs" />
     <Compile Include="Year2018\Day03.cs" />
