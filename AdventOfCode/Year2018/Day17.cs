@@ -22,7 +22,7 @@ namespace AdventOfCode.Year2018
 
         public Day17(string input = SampleInput)
         {
-            foreach (string line in input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string line in input.SplitLine())
             {
                 bool xFirst = line.StartsWith("x");
                 var match = Regex.Match(line, "[xy]+=([0-9]+), [xy]+=([0-9]+)..([0-9]+)");

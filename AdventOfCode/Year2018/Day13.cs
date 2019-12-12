@@ -19,7 +19,7 @@ namespace AdventOfCode.Year2018
         public Day13(string input = sample_input)
         {
             int yCoord = 0;
-            string[] lines = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = input.SplitLine();
             mapWidth = lines[0].Length;
             mapHeight = lines.Length;
             map = new char[mapWidth, mapHeight];

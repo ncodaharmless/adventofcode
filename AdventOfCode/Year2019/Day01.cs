@@ -129,7 +129,7 @@ namespace AdventOfCode.Year2019
         internal int CalculatePart1()
         {
             int fuelRequired = 0;
-            foreach (string line in Input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string line in Input.SplitLine())
                 fuelRequired += CalculateFuelRequired(Convert.ToInt32(line));
             return fuelRequired;
         }
@@ -137,7 +137,7 @@ namespace AdventOfCode.Year2019
         internal int CalculatePart2()
         {
             int fuelRequired = 0;
-            foreach (string line in Input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string line in Input.SplitLine())
                 fuelRequired += CalculateFuelRequiredIncludingSelf(Convert.ToInt32(line));
             return fuelRequired;
         }

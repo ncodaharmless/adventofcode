@@ -24,7 +24,7 @@ namespace AdventOfCode.Year2018
             int immuneCount = 0;
             int infectionCount = 0;
 
-            foreach (string line in input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (string line in input.SplitLine())
             {
                 if (line.StartsWith("Immune System:"))
                     isImmuneSystem = true;

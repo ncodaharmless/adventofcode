@@ -19,7 +19,7 @@ namespace AdventOfCode.Year2018
 
         public Day15(string input = InputData, int elfAttackPower = 3, int goblinAttackPower = 3)
         {
-            var map = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
+            var map = input.SplitLine().Select(c => c.Trim().ToCharArray()).ToArray();
             mapHeight = map.Length;
             mapWidth = map[0].Length;
             unitMap = new Unit[mapWidth, mapHeight];

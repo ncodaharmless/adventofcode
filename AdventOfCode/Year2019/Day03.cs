@@ -15,7 +15,7 @@ namespace AdventOfCode.Year2019
 
         public Day03(string input = Input)
         {
-            string[] lines = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = input.SplitLine();
             wire1 = ParsePoints(lines[0].Trim().Split(','));
             wire2 = ParsePoints(lines[1].Trim().Split(','));
         }

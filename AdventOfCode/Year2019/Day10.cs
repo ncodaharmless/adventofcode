@@ -55,7 +55,7 @@ namespace AdventOfCode.Year2019
 
         public Day10(string input = Input)
         {
-            string[] lines = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = input.SplitLine();
             List<Point> points = new List<Point>();
             Width = lines[0].Length;
             Height = lines.Length;

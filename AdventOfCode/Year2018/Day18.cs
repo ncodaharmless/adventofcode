@@ -20,10 +20,10 @@ namespace AdventOfCode.Year2018
 
         public Day18(string input = SampleInput)
         {
-            Map = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
+            Map = input.SplitLine().Select(c => c.Trim().ToCharArray()).ToArray();
             mapHeight = Map.Length;
             mapWidth = Map[0].Length;
-            NewMap = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToCharArray()).ToArray();
+            NewMap = input.SplitLine().Select(c => c.Trim().ToCharArray()).ToArray();
         }
 
         public Tuple<int, int> Step()

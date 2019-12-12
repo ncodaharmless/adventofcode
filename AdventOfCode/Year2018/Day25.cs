@@ -13,7 +13,7 @@ namespace AdventOfCode.Year2018
         Vector4[] Points;
         public Day25(string input = PuzzleInput)
         {
-            Points = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(p => new Vector4(p)).ToArray();
+            Points = input.SplitLine().Select(p => new Vector4(p)).ToArray();
         }
 
         #region PuzzleInput

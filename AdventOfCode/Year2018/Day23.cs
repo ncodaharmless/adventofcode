@@ -15,7 +15,7 @@ namespace AdventOfCode.Year2018
 
         public Day23(string input = Input)
         {
-            bots = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(n => NanoBot.Parse(n)).ToArray();
+            bots = input.SplitLine().Select(n => NanoBot.Parse(n)).ToArray();
         }
 
         public int CountNanobotsInRangeOfLargest()

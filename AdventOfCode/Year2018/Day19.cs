@@ -16,7 +16,7 @@ namespace AdventOfCode.Year2018
 
         public Day19(string input = SampleInput)
         {
-            string[] lines = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = input.SplitLine();
             InstructionPointerRegister = Convert.ToInt32(lines[0].Substring(3).Trim());
             ProgramLines = lines.Skip(1).ToArray().Select(l => new ProgramLine()
             {

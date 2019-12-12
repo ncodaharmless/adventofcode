@@ -1358,7 +1358,7 @@ BL8)GCP";
 
         public Day06(string input = Input)
         {
-            string[] lines = input.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = input.SplitLine();
             foreach (string line in lines)
             {
                 string[] parts = line.Split(')');

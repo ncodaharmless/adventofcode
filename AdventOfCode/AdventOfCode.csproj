@@ -52,6 +52,7 @@
     <Compile Include="Misc\Powerset.cs" />
     <Compile Include="Utils\Direction.cs" />
     <Compile Include="Utils\Line.cs" />
+    <Compile Include="Utils\StringExt.cs" />
     <Compile Include="Year2018\Day02.cs" />
     <Compile Include="Year2018\Day03.cs" />
     <Compile Include="Year2018\Day04.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Year2019\Day08.cs" />
     <Compile Include="Year2019\Day10.cs" />
     <Compile Include="Year2019\Day11.cs" />
+    <Compile Include="Year2019\Day12.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
