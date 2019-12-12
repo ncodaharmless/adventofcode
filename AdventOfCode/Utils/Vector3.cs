@@ -30,6 +30,11 @@ namespace AdventOfCode.Utils
             Z += a.Z;
         }
 
+        public Vector3 Clone()
+        {
+            return new Vector3(X, Y, Z);
+        }
+
         public Vector3(string parseInput)
         {
             foreach (var line in parseInput.TrimStart('<').TrimEnd('>').Replace(" ", "").SplitComma())

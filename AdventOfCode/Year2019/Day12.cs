@@ -20,12 +20,10 @@ namespace AdventOfCode.Year2019
 <x=-8, y=0, z=4>";
         #endregion
 
-        public Moon[] OriginalMoons;
         public Moon[] Moons;
 
         public Day12(string input = Input)
         {
-            OriginalMoons = input.SplitLine().Select(t => new Moon { Pos = new Vector3(t) }).ToArray();
             Moons = input.SplitLine().Select(t => new Moon { Pos = new Vector3(t) }).ToArray();
         }
 
@@ -70,9 +68,69 @@ namespace AdventOfCode.Year2019
             return Moons.Sum(m => m.TotalEnergy);
         }
 
-        internal int Part2()
+        static long LCM(long a, long b)
         {
-            throw new NotImplementedException();
+            return Math.Abs(a * b) / GCD(a, b);
+        }
+        static long GCD(long a, long b)
+        {
+            return b == 0 ? a : GCD(b, a % b);
+        }
+        private static long LeastCommonMultiple(long[] numbers)
+        {
+            return numbers.Aggregate(LCM);
+            /*
+            long[] multiples = new long[numbers.Length];
+            long interval = numbers.Min();
+            long lcm = interval;
+            while (true)
+            {
+                bool same = true;
+                for (int i = 0; i < numbers.Length; i++)
+                {
+                    if (multiples[i] != lcm)
+                    {
+                        same = false;
+                        break;
+                    }
+                }
+                if (same)
+                    return lcm;
+
+                lcm += interval;
+                for (int i = 0; i < numbers.Length; i++)
+                {
+                    while (multiples[i] < lcm)
+                        multiples[i] += numbers[i];
+                }
+            }*/
+        }
+
+        internal long Part2()
+        {
+            while (true)
+            {
+                for (int i = 0; i < 4; i++)
+                    Moons[i].AddToHistoryAndCheckForCycle();
+                bool foundAllCycle = true;
+                for (int i = 0; i < 4; i++)
+                {
+                    if (!Moons[i].FoundCycle) { foundAllCycle = false; break; }
+                }
+                if (foundAllCycle) break;
+                Step();
+            }
+
+            List<long> cycles = new List<long>();
+            for (int i = 0; i < 4; i++)
+            {
+                cycles.Add(Moons[i].CycleFinderX.Cycle.Length);
+                cycles.Add(Moons[i].CycleFinderY.Cycle.Length);
+                cycles.Add(Moons[i].CycleFinderZ.Cycle.Length);
+            }
+            long lcm = LeastCommonMultiple(cycles.ToArray());
+
+            return lcm;
         }
 
     }
@@ -86,10 +144,24 @@ namespace AdventOfCode.Year2019
         public int KineticEnergy => Velocity.ManhattanDistance(new Vector3());
         public int TotalEnergy => PotentialEnergy * KineticEnergy;
 
+        public List<Vector3> History { get; set; } = new List<Vector3>();
+
         public void Move()
         {
             Pos.Add(Velocity);
         }
+
+        public CycleFinder CycleFinderX { get; } = new CycleFinder();
+        public CycleFinder CycleFinderY { get; } = new CycleFinder();
+        public CycleFinder CycleFinderZ { get; } = new CycleFinder();
+        public void AddToHistoryAndCheckForCycle()
+        {
+            CycleFinderX.Add(Pos.X);
+            CycleFinderY.Add(Pos.Y);
+            CycleFinderZ.Add(Pos.Z);
+        }
+
+        public bool FoundCycle => CycleFinderX.Found && CycleFinderY.Found && CycleFinderX.Found;
     }
 
     [TestClass]
@@ -125,7 +197,7 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part2()
         {
-            Console.WriteLine(new Day12().Part2());
+            Assert.AreEqual(356658899375688, new Day12().Part2());
         }
     }
 }

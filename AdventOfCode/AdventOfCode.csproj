@@ -50,6 +50,7 @@
     <Compile Include="Misc\LexicographicOrder.cs" />
     <Compile Include="Misc\Misc.cs" />
     <Compile Include="Misc\Powerset.cs" />
+    <Compile Include="Utils\CycleFinder.cs" />
     <Compile Include="Utils\Direction.cs" />
     <Compile Include="Utils\Line.cs" />
     <Compile Include="Utils\StringExt.cs" />
