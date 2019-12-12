@@ -12,7 +12,7 @@ namespace AdventOfCode.Utils
         public int Y;
         public int Z;
 
-        public Vector3(int x,int y, int z)
+        public Vector3(int x, int y, int z)
         {
             X = x;
             Y = y;
@@ -21,6 +21,48 @@ namespace AdventOfCode.Utils
 
         public Vector3()
         {
+        }
+
+        public void Add(Vector3 a)
+        {
+            X += a.X;
+            Y += a.Y;
+            Z += a.Z;
+        }
+
+        public Vector3(string parseInput)
+        {
+            foreach (var line in parseInput.TrimStart('<').TrimEnd('>').Replace(" ", "").SplitComma())
+            {
+                switch (line.Substring(0, 2))
+                {
+                    case "x=":
+                        X = Convert.ToInt32(line.Substring(2));
+                        break;
+                    case "y=":
+                        Y = Convert.ToInt32(line.Substring(2));
+                        break;
+                    case "z=":
+                        Z = Convert.ToInt32(line.Substring(2));
+                        break;
+                    default:
+                        throw new NotSupportedException(line);
+                }
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Vector3 p)
+            {
+                return p.X == X && p.Y == Y && p.Z == Z;
+            }
+            return base.Equals(obj);
         }
 
         public int ManhattanDistance(Vector3 b)
