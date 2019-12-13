@@ -7,12 +7,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace AdventOfCode.Year2018
+namespace AdventOfCode.Year2019
 {
     class Program
     {
         public static void Main()
         {
+            new Day13().Part2();
             Console.ReadLine();
         }
     }

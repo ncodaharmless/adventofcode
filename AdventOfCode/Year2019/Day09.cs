@@ -47,6 +47,11 @@ namespace AdventOfCode.Year2019
             return 0;
         }
 
+        public void SetAddressValue(int offset, int value)
+        {
+            _IntCodes[offset] = value;
+        }
+
         long GetParamValue(int offset)
         {
             long mode = _ParamMode[offset];
