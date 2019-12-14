@@ -97,6 +97,7 @@
     <Compile Include="Year2019\Day11.cs" />
     <Compile Include="Year2019\Day12.cs" />
     <Compile Include="Year2019\Day13.cs" />
+    <Compile Include="Year2019\Day14.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
