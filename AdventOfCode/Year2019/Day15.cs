@@ -202,7 +202,12 @@ namespace AdventOfCode.Year2019
 
         internal int Part2()
         {
-            throw new NotImplementedException();
+            Point oxygenPoint = FindOxygenSystem();
+            OutputMap();
+
+            SetDistanceTo(oxygenPoint, 0);
+
+            return distanceToO.Values.Max();
         }
     }
 
