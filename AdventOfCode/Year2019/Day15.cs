@@ -170,11 +170,34 @@ namespace AdventOfCode.Year2019
             }
         }
 
+        Dictionary<Point, int> distanceToO = new Dictionary<Point, int>();
+
         internal int Part1()
         {
-            Point p = FindOxygenSystem();
+            Point oxygenPoint = FindOxygenSystem();
             OutputMap();
-            throw new NotImplementedException();
+
+            SetDistanceTo(oxygenPoint, 0);
+
+            return distanceToO[new Point(0, 0)];
+        }
+
+        private void SetDistanceTo(Point p, int distance)
+        {
+            if (area.TryGetValue(p, out MapAreaCode mapPoint) && mapPoint != MapAreaCode.Wall)
+            {
+                if (!distanceToO.ContainsKey(p) || distanceToO[p] > distance)
+                {
+                    if (!distanceToO.ContainsKey(p))
+                        distanceToO.Add(p, distance);
+                    else
+                        distanceToO[p] = distance;
+                    SetDistanceTo(p.Left(), distance + 1);
+                    SetDistanceTo(p.Right(), distance + 1);
+                    SetDistanceTo(p.Up(), distance + 1);
+                    SetDistanceTo(p.Below(), distance + 1);
+                }
+            }
         }
 
         internal int Part2()
@@ -195,7 +218,7 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part1()
         {
-            Assert.AreEqual(0, new Day15().Part1());
+            Assert.AreEqual(380, new Day15().Part1());
         }
         [TestMethod]
         public void Part2()
