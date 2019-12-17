@@ -149,12 +149,12 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part1()
         {
-            Console.WriteLine(new Day01().CalculatePart1());
+            Assert.AreEqual(3408471, new Day01().CalculatePart1());
         }
         [TestMethod]
         public void Part2()
         {
-            Console.WriteLine(new Day01().CalculatePart2());
+            Assert.AreEqual(5109803, new Day01().CalculatePart2());
         }
     }
 }

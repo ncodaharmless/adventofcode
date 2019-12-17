@@ -119,12 +119,12 @@ U98,R91,D20,R16,D67,R40,U7,R15,U6,R7").Part2());
         [TestMethod]
         public void Part1()
         {
-            Console.WriteLine(new Day03().Part1());
+            Assert.AreEqual(1983, new Day03().Part1());
         }
         [TestMethod]
         public void Part2()
         {
-            Console.WriteLine(new Day03().Part2());
+            Assert.AreEqual(107754, new Day03().Part2());
         }
     }
 }

@@ -204,8 +204,7 @@ namespace AdventOfCode.Year2019
 
         public Day09(string input = Input)
         {
-            long[] intCompCode = input.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(i => Convert.ToInt64(i)).ToArray();
-            cmp = new IntcodeComputerExt(intCompCode);
+            cmp = new IntcodeComputerExt(input);
         }
 
         internal string RunAndReturnOutput()

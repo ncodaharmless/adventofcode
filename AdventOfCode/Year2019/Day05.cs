@@ -247,12 +247,12 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part1()
         {
-            Console.WriteLine(new Day05().Part1());
+            Assert.AreEqual(15386262, new Day05().Part1());
         }
         [TestMethod]
         public void Part2()
         {
-            Console.WriteLine(new Day05().Part2());
+            Assert.AreEqual(10376124, new Day05().Part2());
         }
     }
 

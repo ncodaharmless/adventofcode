@@ -100,7 +100,7 @@ namespace AdventOfCode.Year2019
         {
             Assert.AreEqual("34841690", new Day16().Part1());
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Part2()
         {
             Assert.AreEqual(0, new Day16().Part2());

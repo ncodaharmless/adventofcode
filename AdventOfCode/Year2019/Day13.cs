@@ -17,14 +17,14 @@ namespace AdventOfCode.Year2019
         #endregion
 
         IntcodeComputerExt cmp;
-        int ScreenHeight = 24;
+        //int ScreenHeight = 24;
         int score;
-        int blockCount = 0;
+        public int blockCount = 0;
         public bool PlayManually = false;
 
         public Day13(string input = Input)
         {
-            cmp = new IntcodeComputerExt(input.SplitComma().Select(i => Convert.ToInt64(i)).ToArray());
+            cmp = new IntcodeComputerExt(input);
         }
 
         internal int Part1()
@@ -109,8 +109,8 @@ namespace AdventOfCode.Year2019
                             if (x == -1 && y == 0)
                             {
                                 score = i;
-                                Console.SetCursorPosition(0, ScreenHeight + 1);
-                                Console.WriteLine($"Score {score} Block {blockCount}");
+                                //Console.SetCursorPosition(0, ScreenHeight + 1);
+                                //Console.WriteLine($"Score {score} Block {blockCount}");
                             }
                             else
                             {
@@ -131,27 +131,27 @@ namespace AdventOfCode.Year2019
                                     tiles.Add(tilePoint, i);
                                     if (i == 2) blockCount++;
                                 }
-                                Console.SetCursorPosition(tilePoint.X, tilePoint.Y);
-                                switch (i)
-                                {
-                                    case 1:
-                                        Console.Write("#");
-                                        break;
-                                    case 2:
-                                        Console.Write("B");
-                                        break;
-                                    case 3:
-                                        Console.Write("_");
-                                        break;
-                                    case 4:
-                                        Console.Write("o");
-                                        break;
-                                    case 0:
-                                    default:
-                                        Console.Write(" ");
-                                        break;
-                                }
-                                Console.SetCursorPosition(0, ScreenHeight + 1);
+                                //Console.SetCursorPosition(tilePoint.X, tilePoint.Y);
+                                //switch (i)
+                                //{
+                                //    case 1:
+                                //        Console.Write("#");
+                                //        break;
+                                //    case 2:
+                                //        Console.Write("B");
+                                //        break;
+                                //    case 3:
+                                //        Console.Write("_");
+                                //        break;
+                                //    case 4:
+                                //        Console.Write("o");
+                                //        break;
+                                //    case 0:
+                                //    default:
+                                //        Console.Write(" ");
+                                //        break;
+                                //}
+                                //Console.SetCursorPosition(0, ScreenHeight + 1);
                             }
                             break;
                     }
@@ -167,12 +167,7 @@ namespace AdventOfCode.Year2019
     [TestClass]
     public class TestDay13
     {
-        [TestMethod]
-        public void Example1()
-        {
-
-        }
-
+       
         [TestMethod]
         public void Part1()
         {

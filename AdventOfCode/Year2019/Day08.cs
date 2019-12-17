@@ -77,12 +77,12 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part1()
         {
-            Console.WriteLine(new Day08().Part1());
+            Assert.AreEqual(2562, new Day08().Part1());
         }
         [TestMethod]
         public void Part2()
         {
-            Console.WriteLine(new Day08().Part2());
+            Assert.AreEqual(0, new Day08().Part2());
         }
     }
 

@@ -21,7 +21,7 @@ namespace AdventOfCode.Year2019
 
         public Day15(string input = Input)
         {
-            cmp = new IntcodeComputerExt(input.SplitComma().Select(i => Convert.ToInt64(i)).ToArray());
+            cmp = new IntcodeComputerExt(input);
         }
 
         private void Move(Direction dir)
@@ -215,12 +215,6 @@ namespace AdventOfCode.Year2019
     public class TestDay15
     {
         [TestMethod]
-        public void Example1()
-        {
-
-        }
-
-        [TestMethod]
         public void Part1()
         {
             Assert.AreEqual(380, new Day15().Part1());
@@ -228,7 +222,7 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part2()
         {
-            Assert.AreEqual(0, new Day15().Part2());
+            Assert.AreEqual(410, new Day15().Part2());
         }
     }
 

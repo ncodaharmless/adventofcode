@@ -99,12 +99,6 @@ namespace AdventOfCode.Year2019
     public class TestDay11
     {
         [TestMethod]
-        public void Example1()
-        {
-
-        }
-
-        [TestMethod]
         public void Part1()
         {
             Assert.AreEqual(2441, new Day11().Part1());

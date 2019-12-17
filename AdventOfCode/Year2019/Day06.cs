@@ -1434,12 +1434,12 @@ I)SAN").Part2());
         [TestMethod]
         public void Part1()
         {
-            Console.WriteLine(new Day06().Part1());
+            Assert.AreEqual(154386, new Day06().Part1());
         }
         [TestMethod]
         public void Part2()
         {
-            Console.WriteLine(new Day06().Part2());
+            Assert.AreEqual(346, new Day06().Part2());
         }
     }
 

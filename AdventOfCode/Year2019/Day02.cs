@@ -29,7 +29,7 @@ namespace AdventOfCode.Year2019
             _InstructionPointer = 0;
         }
 
-        bool RunNext()
+        public bool RunNext()
         {
             switch (_IntCodes[_InstructionPointer])
             {
@@ -92,31 +92,30 @@ namespace AdventOfCode.Year2019
             }
             throw new NotSupportedException();
         }
-
-        [TestClass]
-        public class TestDay02
+    }
+    [TestClass]
+    public class TestDay02
+    {
+        [TestMethod]
+        public void ExampleDay2()
         {
-            [TestMethod]
-            public void ExampleDay2()
-            {
-                var d = new Day02("1,9,10,3,2,3,11,0,99,30,40,50");
-                Assert.IsTrue(d.RunNext());
-                Assert.AreEqual(70, d._IntCodes[3]);
-                Assert.IsTrue(d.RunNext());
-                Assert.AreEqual(3500, d._IntCodes[0]);
-                Assert.IsFalse(d.RunNext());
-            }
+            var d = new Day02("1,9,10,3,2,3,11,0,99,30,40,50");
+            Assert.IsTrue(d.RunNext());
+            Assert.AreEqual(70, d._IntCodes[3]);
+            Assert.IsTrue(d.RunNext());
+            Assert.AreEqual(3500, d._IntCodes[0]);
+            Assert.IsFalse(d.RunNext());
+        }
 
-            [TestMethod]
-            public void Part1()
-            {
-                Console.WriteLine(new Day02().Part1());
-            }
-            [TestMethod]
-            public void Part2()
-            {
-                Console.WriteLine(new Day02().Part2());
-            }
+        [TestMethod]
+        public void Part1()
+        {
+            Assert.AreEqual(6627023, new Day02().Part1());
+        }
+        [TestMethod]
+        public void Part2()
+        {
+            Assert.AreEqual(4019, new Day02().Part2());
         }
     }
 }
