@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using AdventOfCode.Utils;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,26 +27,43 @@ namespace AdventOfCode.Year2019
         {
             for (int i = 0; i < 100; i++)
                 Phase();
-            return Output().Substring(0, 8);
+            return Output(0, 8);
         }
 
         internal string Part2()
         {
-            throw new NotSupportedException();
+            List<int> numbers2 = new List<int>();
+            for (int i = 0; i < 10000; i++)
+                numbers2.AddRange(Numbers);
+            numbers2.ToArray();
+
+            int resultOffset = Convert.ToInt32(string.Join("", numbers2.Take(7)));
+
+            Numbers = numbers2.Skip(resultOffset).ToArray();
+
+            for (int i = 0; i < 100; i++)
+                Phase(0);
+            return Output().Substring(0, 8);
         }
 
-        public void Phase(int multiplier = 1)
+        public void Phase(int offset = 0)
         {
+            int numbersLength = Numbers.Length;
             int[] pattern = new int[] { 0, 1, 0, -1 };
-            int[] output = new int[Numbers.Length];
-            for (int i = 0; i < Numbers.Length; i++)
+            int[] output = new int[numbersLength];
+            for (int i = offset; i < numbersLength; i++)
             {
                 int result = 0;
                 int patternIndex = 0;
-                for (int j = i; j < Numbers.Length; j++)
+                int repeatCount = i;
+                for (int j = i; j < numbersLength; j++)
                 {
-                    if ((j - i) % (i + 1) == 0)
+                    repeatCount++;
+                    if (repeatCount == (i + 1))
+                    {
                         patternIndex = (patternIndex + 1) % pattern.Length;
+                        repeatCount = 0;
+                    }
 
                     result += pattern[patternIndex] * Numbers[j];
                 }
@@ -54,9 +72,9 @@ namespace AdventOfCode.Year2019
             Numbers = output;
         }
 
-        public string Output()
+        public string Output(int offset = 0, int length = 8)
         {
-            return string.Join("", Numbers);
+            return string.Join("", Numbers.Skip(offset).Take(length));
         }
     }
 

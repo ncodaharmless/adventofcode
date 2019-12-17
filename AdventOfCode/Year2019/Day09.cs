@@ -28,6 +28,12 @@ namespace AdventOfCode.Year2019
             ReInit();
         }
 
+        public IntcodeComputerExt(string input)
+        {
+            _OrigIntCodes = input.SplitComma().Select(i => Convert.ToInt64(i)).ToArray();
+            ReInit();
+        }
+
         public void ReInit()
         {
             _IntCodes = new Dictionary<int, long>();
