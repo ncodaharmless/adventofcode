@@ -42,16 +42,35 @@ namespace AdventOfCode.Year2019
             Numbers = numbers2.Skip(resultOffset).ToArray();
 
             for (int i = 0; i < 100; i++)
-                Phase(0);
+                Phase2();
             return Output().Substring(0, 8);
         }
 
-        public void Phase(int offset = 0)
+        private int[] _Cache;
+        private void Phase2()
+        {
+            int numbersLength = Numbers.Length;
+            if (_Cache == null)
+                _Cache = new int[numbersLength];
+            long result = 0;
+            for (int i = 0; i < numbersLength; i++)
+                result += Numbers[i];
+            for (int i = 0; i < numbersLength; i++)
+            {
+                _Cache[i] = (int)(result % 10);
+                result -= Numbers[i];
+            }
+            var tmp = Numbers;
+            Numbers = _Cache;
+            _Cache = tmp;
+        }
+
+        public void Phase()
         {
             int numbersLength = Numbers.Length;
             int[] pattern = new int[] { 0, 1, 0, -1 };
             int[] output = new int[numbersLength];
-            for (int i = offset; i < numbersLength; i++)
+            for (int i = 0; i < numbersLength; i++)
             {
                 int result = 0;
                 int patternIndex = 0;
@@ -100,10 +119,10 @@ namespace AdventOfCode.Year2019
         {
             Assert.AreEqual("34841690", new Day16().Part1());
         }
-        [TestMethod, Ignore]
+        [TestMethod]
         public void Part2()
         {
-            Assert.AreEqual(0, new Day16().Part2());
+            Assert.AreEqual("48776785", new Day16().Part2());
         }
     }
 
