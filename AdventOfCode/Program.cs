@@ -13,7 +13,7 @@ namespace AdventOfCode.Year2019
     {
         public static void Main()
         {
-            new Day16().Part2();
+            new Day18().Part1();
             Console.ReadLine();
         }
     }

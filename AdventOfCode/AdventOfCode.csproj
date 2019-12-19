@@ -52,6 +52,7 @@
     <Compile Include="Misc\Powerset.cs" />
     <Compile Include="Utils\CycleFinder.cs" />
     <Compile Include="Utils\Direction.cs" />
+    <Compile Include="Utils\GridMap.cs" />
     <Compile Include="Utils\Line.cs" />
     <Compile Include="Utils\MathUtil.cs" />
     <Compile Include="Utils\StringExt.cs" />

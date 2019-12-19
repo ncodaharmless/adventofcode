@@ -10,6 +10,72 @@ namespace AdventOfCode.Year2019
 {
 
 
+    class CharMap : GridMap<char>
+    {
+        public class DistanceMap : GridMap<uint>
+        {
+            public uint Distance(Point point)
+            {
+                return this[point];
+            }
+
+            public DistanceMap(int width, int height) : base(width, height)
+            {
+                for (int y = 0; y < Height; y++)
+                    for (int x = 0; x < Width; x++)
+                        this[x, y] = uint.MaxValue;
+            }
+        }
+
+        public Func<char, bool> IsTarget = (c) => false;
+
+        public Dictionary<Point, char> Targets;
+        public bool StopOnTarget;
+
+        public DistanceMap CorridorDistance(Point from, Func<char, bool> isWall)
+        {
+            Targets = new Dictionary<Point, char>();
+            var distMap = new DistanceMap(Width, Height);
+            CorridorDistance(distMap, isWall, from, 0);
+            return distMap;
+        }
+        private void CorridorDistance(DistanceMap dist, Func<char, bool> isWall, Point from, uint distance)
+        {
+            if (from.X < 0 || from.Y < 0 || from.X >= Width || from.Y >= Height) return;
+            int index = from.Y * Width + from.X;
+            char cell = this[index];
+            if (isWall(cell)) return;
+            if (dist[index] > distance)
+            {
+                dist[index] = distance;
+                if (IsTarget(cell))
+                {
+                    if (!Targets.ContainsKey(from))
+                        Targets.Add(from, cell);
+                    if (StopOnTarget) return;
+                }
+                CorridorDistance(dist, isWall, from.Left(), distance + 1);
+                CorridorDistance(dist, isWall, from.Right(), distance + 1);
+                CorridorDistance(dist, isWall, from.Up(), distance + 1);
+                CorridorDistance(dist, isWall, from.Below(), distance + 1);
+            }
+        }
+
+        public CharMap(CharMap cloneSource) : base(cloneSource.Width, cloneSource.Height)
+        {
+            cloneSource._Data.CopyTo(_Data, 0);
+            IsTarget = cloneSource.IsTarget;
+        }
+
+        public CharMap(string[] lines) : base(lines[0].Length, lines.Length)
+        {
+            _Data = new char[Height * Width];
+            for (int y = 0; y < Height; y++)
+                for (int x = 0; x < Width; x++)
+                    _Data[y * Width + x] = lines[y][x];
+        }
+    }
+
     class Day18
     {
         #region Input
@@ -97,91 +163,52 @@ namespace AdventOfCode.Year2019
 #################################################################################";
         #endregion
 
-        private Dictionary<Point, char> _Map = new Dictionary<Point, char>();
-        readonly int Width;
-        readonly int Height;
+        private CharMap _Map;
         readonly Point StartLocation;
+        private Dictionary<Point, CharMap.DistanceMap> _OpenDoorDistances = new Dictionary<Point, CharMap.DistanceMap>();
+        int SearchDepth = 2;
 
         public Day18(string input = Input)
         {
-            string[] lines = input.SplitLine();
-            List<Point> points = new List<Point>();
-            Width = lines[0].Length;
-            Height = lines.Length;
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    _Map.Add(new Point(x, y), lines[y][x]);
-                    if (lines[y][x] == '@')
-                        StartLocation = new Point(x, y);
-                }
-            }
+            _Map = new CharMap(input.SplitLine());
+
+            StartLocation = _Map.FindFirst('@').Value;
         }
 
         internal int Part1()
         {
-            int totalDistance = ShortedPathForAllKeys(new Dictionary<Point, char>(_Map), StartLocation, 0);
+            foreach (Point keyPos in _Map.FindAll(m => char.IsLetter(m) && char.IsLower(m)))
+            {
+                _OpenDoorDistances.Add(keyPos, _Map.CorridorDistance(keyPos, w => w == '#'));
+            }
 
-            return totalDistance;
+            _Map.IsTarget = (c) => char.IsLetter(c) && char.IsLower(c);
+
+            uint totalDistance = ShortedPathForAllKeys(_Map, StartLocation, 0);
+
+            return (int)totalDistance;
         }
 
-        private static int ShortedPathForAllKeys(Dictionary<Point, char> _Map, Point currentLocation, int distance)
+        private uint ShortedPathForAllKeys(CharMap map, Point currentLocation, uint distance)
         {
-            Dictionary<Point, int> distanceToO = new Dictionary<Point, int>();
-            Dictionary<char, int> keyDistances = new Dictionary<char, int>();
-            SetDistanceTo(_Map, currentLocation, 0, distanceToO, keyDistances);
-            if (keyDistances.Count == 0) return distance;
-            int shortestToFinish = int.MaxValue;
-            foreach (var item in keyDistances)
+            var distanceMap = map.CorridorDistance(currentLocation, (c) => c == '#' || (char.IsLetter(c) && char.IsUpper(c)));
+            if (map.Targets.Count == 0) return distance;
+            uint shortestToFinish = int.MaxValue;
+            foreach (var item in map.Targets.OrderBy(t => _OpenDoorDistances[t.Key].Distance(currentLocation)).Take(SearchDepth))
             {
-                Dictionary<Point, char> replacedMap = new Dictionary<Point, char>(_Map);
-                char key = item.Key;
+                uint targetDistance = distanceMap.Distance(item.Key);
+                CharMap cloneMap = new CharMap(map);
+                char key = item.Value;
                 char door = char.ToUpper(key);
-                Point startLocation = new Point();
-                foreach (var mapItem in replacedMap.ToArray())
-                {
-                    if (mapItem.Value == key)
-                    {
-                        replacedMap[mapItem.Key] = '.';
-                        startLocation = mapItem.Key;
-                    }
-                    else if (mapItem.Value == door)
-                    {
-                        replacedMap[mapItem.Key] = '.';
-                    }
-                }
-                int thisDist = ShortedPathForAllKeys(replacedMap, startLocation, item.Value + distance);
+                cloneMap[item.Key] = '.';
+                Point? doorPoint = cloneMap.FindFirst(door);
+                if (doorPoint.HasValue)
+                    cloneMap[doorPoint.Value] = '.';
+                uint thisDist = ShortedPathForAllKeys(cloneMap, item.Key, targetDistance + distance);
                 if (thisDist < shortestToFinish)
                     shortestToFinish = thisDist;
             }
             return shortestToFinish;
-        }
-
-        private static void SetDistanceTo(Dictionary<Point, char> _Map, Point from, int distance, Dictionary<Point, int> distanceToO, Dictionary<char, int> keyDistances)
-        {
-            if (_Map.TryGetValue(from, out char mapPoint))
-            {
-                if (char.IsLetter(mapPoint) && char.IsLower(mapPoint))
-                {
-                    if (!keyDistances.ContainsKey(mapPoint))
-                        keyDistances.Add(mapPoint, distance);
-                    else if (keyDistances[mapPoint] > distance)
-                        keyDistances[mapPoint] = distance;
-                }
-                if (mapPoint != '@' && mapPoint != '.') return;
-                if (!distanceToO.ContainsKey(from) || distanceToO[from] > distance)
-                {
-                    if (!distanceToO.ContainsKey(from))
-                        distanceToO.Add(from, distance);
-                    else
-                        distanceToO[from] = distance;
-                    SetDistanceTo(_Map, from.Left(), distance + 1, distanceToO, keyDistances);
-                    SetDistanceTo(_Map, from.Right(), distance + 1, distanceToO, keyDistances);
-                    SetDistanceTo(_Map, from.Up(), distance + 1, distanceToO, keyDistances);
-                    SetDistanceTo(_Map, from.Below(), distance + 1, distanceToO, keyDistances);
-                }
-            }
         }
 
         internal int Part2()
