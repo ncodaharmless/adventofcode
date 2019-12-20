@@ -20,7 +20,7 @@ namespace AdventOfCode.Utils
 
         public override int GetHashCode()
         {
-            return ToString().GetHashCode();
+            return X << 16 + Y;
         }
 
         public override string ToString()

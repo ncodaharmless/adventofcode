@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AdventOfCode.Utils
 {
-    public abstract class GridMap<T>
+    public class GridMap<T>
     {
         public readonly int Width;
         public readonly int Height;

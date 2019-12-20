@@ -12,9 +12,9 @@ namespace AdventOfCode.Year2019
 
     class CharMap : GridMap<char>
     {
-        public class DistanceMap : GridMap<uint>
+        public class DistanceMap : GridMap<int>
         {
-            public uint Distance(Point point)
+            public int Distance(Point point)
             {
                 return this[point];
             }
@@ -23,23 +23,23 @@ namespace AdventOfCode.Year2019
             {
                 for (int y = 0; y < Height; y++)
                     for (int x = 0; x < Width; x++)
-                        this[x, y] = uint.MaxValue;
+                        this[x, y] = int.MaxValue;
             }
         }
 
         public Func<char, bool> IsTarget = (c) => false;
 
         public Dictionary<Point, char> Targets;
-        public bool StopOnTarget;
 
-        public DistanceMap CorridorDistance(Point from, Func<char, bool> isWall)
+        public Tuple<DistanceMap, GridMap<int>> CorridorDistance(Point from, Func<char, bool> isWall)
         {
             Targets = new Dictionary<Point, char>();
             var distMap = new DistanceMap(Width, Height);
-            CorridorDistance(distMap, isWall, from, 0);
-            return distMap;
+            var keysReq = new GridMap<int>(Width, Height);
+            CorridorDistance(distMap, keysReq, isWall, from, 0, string.Empty);
+            return new Tuple<DistanceMap, GridMap<int>>(distMap, keysReq);
         }
-        private void CorridorDistance(DistanceMap dist, Func<char, bool> isWall, Point from, uint distance)
+        private void CorridorDistance(DistanceMap dist, GridMap<int> keyReq, Func<char, bool> isWall, Point from, int distance, string keysRequired)
         {
             if (from.X < 0 || from.Y < 0 || from.X >= Width || from.Y >= Height) return;
             int index = from.Y * Width + from.X;
@@ -48,16 +48,18 @@ namespace AdventOfCode.Year2019
             if (dist[index] > distance)
             {
                 dist[index] = distance;
+                keyReq[index] = keysRequired.LowerCaseCharMask();
+                if (char.IsLetter(cell) && char.IsUpper(cell))
+                    keysRequired = (keysRequired + char.ToLower(cell));
                 if (IsTarget(cell))
                 {
                     if (!Targets.ContainsKey(from))
                         Targets.Add(from, cell);
-                    if (StopOnTarget) return;
                 }
-                CorridorDistance(dist, isWall, from.Left(), distance + 1);
-                CorridorDistance(dist, isWall, from.Right(), distance + 1);
-                CorridorDistance(dist, isWall, from.Up(), distance + 1);
-                CorridorDistance(dist, isWall, from.Below(), distance + 1);
+                CorridorDistance(dist, keyReq, isWall, from.Left(), distance + 1, keysRequired);
+                CorridorDistance(dist, keyReq, isWall, from.Right(), distance + 1, keysRequired);
+                CorridorDistance(dist, keyReq, isWall, from.Up(), distance + 1, keysRequired);
+                CorridorDistance(dist, keyReq, isWall, from.Below(), distance + 1, keysRequired);
             }
         }
 
@@ -166,49 +168,69 @@ namespace AdventOfCode.Year2019
         private CharMap _Map;
         readonly Point StartLocation;
         private Dictionary<Point, CharMap.DistanceMap> _OpenDoorDistances = new Dictionary<Point, CharMap.DistanceMap>();
-        int SearchDepth = 2;
+        private Dictionary<char, GridMap<int>> _KeysRequired = new Dictionary<char, GridMap<int>>();
+        Dictionary<char, Point> _AllKeys;
 
         public Day18(string input = Input)
         {
             _Map = new CharMap(input.SplitLine());
+            _Map.IsTarget = (c) => char.IsLetter(c) && char.IsLower(c);
+
+            _AllKeys = new Dictionary<char, Point>();
+            foreach (Point keyPos in _Map.FindAll(m => char.IsLetter(m) && char.IsLower(m)))
+            {
+                char key = _Map[keyPos];
+                _AllKeys.Add(key, keyPos);
+                var result = _Map.CorridorDistance(keyPos, w => w == '#');
+                _OpenDoorDistances.Add(keyPos, result.Item1);
+                _KeysRequired.Add(key, result.Item2);
+            }
 
             StartLocation = _Map.FindFirst('@').Value;
         }
 
+
+
         internal int Part1()
         {
-            foreach (Point keyPos in _Map.FindAll(m => char.IsLetter(m) && char.IsLower(m)))
-            {
-                _OpenDoorDistances.Add(keyPos, _Map.CorridorDistance(keyPos, w => w == '#'));
-            }
+            int totalDistance = ShortedPathForAllKeys(StartLocation, 0, 0, new string(_AllKeys.Keys.ToArray()));
 
-            _Map.IsTarget = (c) => char.IsLetter(c) && char.IsLower(c);
-
-            uint totalDistance = ShortedPathForAllKeys(_Map, StartLocation, 0);
-
-            return (int)totalDistance;
+            return totalDistance;
         }
 
-        private uint ShortedPathForAllKeys(CharMap map, Point currentLocation, uint distance)
+        int currentShortest = int.MaxValue;
+
+        private int ShortedPathForAllKeys(Point currentLocation, int distance, int keysAquired, string remainingKeys)
         {
-            var distanceMap = map.CorridorDistance(currentLocation, (c) => c == '#' || (char.IsLetter(c) && char.IsUpper(c)));
-            if (map.Targets.Count == 0) return distance;
-            uint shortestToFinish = int.MaxValue;
-            foreach (var item in map.Targets.OrderBy(t => _OpenDoorDistances[t.Key].Distance(currentLocation)).Take(SearchDepth))
+            if (remainingKeys.Length == 0)
             {
-                uint targetDistance = distanceMap.Distance(item.Key);
-                CharMap cloneMap = new CharMap(map);
-                char key = item.Value;
-                char door = char.ToUpper(key);
-                cloneMap[item.Key] = '.';
-                Point? doorPoint = cloneMap.FindFirst(door);
-                if (doorPoint.HasValue)
-                    cloneMap[doorPoint.Value] = '.';
-                uint thisDist = ShortedPathForAllKeys(cloneMap, item.Key, targetDistance + distance);
-                if (thisDist < shortestToFinish)
-                    shortestToFinish = thisDist;
+                if (currentShortest > distance)
+                    currentShortest = distance;
+                return distance;
+            }
+            int shortestToFinish = int.MaxValue;
+            foreach (char keyChar in remainingKeys)
+            {
+                var keyLocation = _AllKeys[keyChar];
+
+                var keysRequired = _KeysRequired[keyChar][currentLocation];
+                bool hasKeys = HasKeys(keysRequired, keysAquired);
+                if (hasKeys)
+                {
+                    int distToThisKey = _OpenDoorDistances[keyLocation][currentLocation] + distance;
+                    if (distToThisKey >= currentShortest)
+                        continue;
+                    var thisDist = ShortedPathForAllKeys(keyLocation, distToThisKey, keysAquired | keyChar.LowerCaseCharMask(), remainingKeys.Remove(remainingKeys.IndexOf(keyChar), 1));
+                    if (thisDist < shortestToFinish)
+                        shortestToFinish = thisDist;
+                }
             }
             return shortestToFinish;
+        }
+
+        private bool HasKeys(int required, int aquiredMask)
+        {
+            return required == (aquiredMask & required);
         }
 
         internal int Part2()
