@@ -20,7 +20,7 @@ namespace AdventOfCode.Utils
 
         public override int GetHashCode()
         {
-            return X << 16 + Y;
+            return (X << 16) + Y;
         }
 
         public override string ToString()
@@ -113,10 +113,21 @@ namespace AdventOfCode.Utils
             return base.Equals(obj);
         }
 
+        public static bool operator ==(Point left, Point right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Point left, Point right)
+        {
+            return !(left == right);
+        }
+        
         public int ManhattanDist(Point p)
         {
             return Math.Abs(p.X - X) + Math.Abs(p.Y - Y);
         }
+
     }
 
 }

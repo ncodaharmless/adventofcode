@@ -29,7 +29,7 @@ namespace AdventOfCode
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static int LowerCaseCharMask(this string key)
+        public static int ToLowerCaseCharMask(this string key)
         {
             int result = 0;
             foreach (char c in key)
@@ -45,7 +45,7 @@ namespace AdventOfCode
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static int LowerCaseCharMask(this char key)
+        public static int ToLowerCaseCharMask(this char key)
         {
             return 1 << (key - 'a');
         }

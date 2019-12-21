@@ -48,7 +48,7 @@ namespace AdventOfCode.Year2019
             if (dist[index] > distance)
             {
                 dist[index] = distance;
-                keyReq[index] = keysRequired.LowerCaseCharMask();
+                keyReq[index] = keysRequired.ToLowerCaseCharMask();
                 if (char.IsLetter(cell) && char.IsUpper(cell))
                     keysRequired = (keysRequired + char.ToLower(cell));
                 if (IsTarget(cell))
@@ -170,6 +170,7 @@ namespace AdventOfCode.Year2019
         private Dictionary<Point, CharMap.DistanceMap> _OpenDoorDistances = new Dictionary<Point, CharMap.DistanceMap>();
         private Dictionary<char, GridMap<int>> _KeysRequired = new Dictionary<char, GridMap<int>>();
         Dictionary<char, Point> _AllKeys;
+        int currentShortest = int.MaxValue;
 
         public Day18(string input = Input)
         {
@@ -198,8 +199,6 @@ namespace AdventOfCode.Year2019
             return totalDistance;
         }
 
-        int currentShortest = int.MaxValue;
-
         private int ShortedPathForAllKeys(Point currentLocation, int distance, int keysAquired, string remainingKeys)
         {
             if (remainingKeys.Length == 0)
@@ -220,7 +219,7 @@ namespace AdventOfCode.Year2019
                     int distToThisKey = _OpenDoorDistances[keyLocation][currentLocation] + distance;
                     if (distToThisKey >= currentShortest)
                         continue;
-                    var thisDist = ShortedPathForAllKeys(keyLocation, distToThisKey, keysAquired | keyChar.LowerCaseCharMask(), remainingKeys.Remove(remainingKeys.IndexOf(keyChar), 1));
+                    var thisDist = ShortedPathForAllKeys(keyLocation, distToThisKey, keysAquired | keyChar.ToLowerCaseCharMask(), remainingKeys.Remove(remainingKeys.IndexOf(keyChar), 1));
                     if (thisDist < shortestToFinish)
                         shortestToFinish = thisDist;
                 }
