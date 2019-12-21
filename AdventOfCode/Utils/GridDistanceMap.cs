@@ -23,10 +23,10 @@ namespace AdventOfCode.Utils
 
         public void CalculateCorridorDistanceRecursive(ITraverseMap map, Point from)
         {
-            CorridorDistance(map, from, 0);
+            CorridorDistanceRecursive(map, from, 0);
         }
 
-        private void CorridorDistance(ITraverseMap map, Point from, int distance)
+        private void CorridorDistanceRecursive(ITraverseMap map, Point from, int distance)
         {
             if (from.X < 0 || from.Y < 0 || from.X >= Width || from.Y >= Height) return;
 
@@ -36,10 +36,10 @@ namespace AdventOfCode.Utils
             if (this[index] > distance)
             {
                 this[index] = distance;
-                CorridorDistance(map, map.TranslatePoint(from, Direction.Left), distance + 1);
-                CorridorDistance(map, map.TranslatePoint(from, Direction.Right), distance + 1);
-                CorridorDistance(map, map.TranslatePoint(from, Direction.Up), distance + 1);
-                CorridorDistance(map, map.TranslatePoint(from, Direction.Down), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Left), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Right), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Up), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Down), distance + 1);
             }
         }
 
