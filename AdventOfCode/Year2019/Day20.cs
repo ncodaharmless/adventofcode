@@ -202,15 +202,14 @@ AE..#...#...#.#.#...#.......#.#                                                 
 #endif
             }
 
-            public override Point TranslatePoint(Point point, Direction dir)
+            public override Point TranslatePoint(Point point)
             {
                 int x = 0;
-                return TranslatePoint(point, dir, ref x);
+                return TranslatePoint(point, ref x);
             }
 
-            public Point TranslatePoint(Point point, Direction dir, ref int level)
+            public Point TranslatePoint(Point next, ref int level)
             {
-                Point next = point.MoveDirection(dir);
                 char pointChar = this[next];
                 if (char.IsLetter(pointChar))
                 {
@@ -275,7 +274,7 @@ AE..#...#...#.#.#...#.......#.#                                                 
             private void Move(MazeMap map, Queue<PointCheck> queue, PointCheck pc, Direction dir)
             {
                 int levelToPoint = pc.Level;
-                Point next = map.TranslatePoint(pc.Point, dir, ref levelToPoint);
+                Point next = map.TranslatePoint(pc.Point.MoveDirection(dir), ref levelToPoint);
                 queue.Enqueue(new PointCheck() { Point = next, Level = levelToPoint, Distance = pc.Distance + 1 });
             }
 
@@ -292,7 +291,7 @@ AE..#...#...#.#.#...#.......#.#                                                 
         internal int Part1()
         {
             var DistanceMap = new GridDistanceMap(Map.Width, Map.Height);
-            DistanceMap.CalculateCorridorDistance(Map, Map.EndPoint);
+            DistanceMap.CalculateCorridorDistance<TraversePointCheck>(Map, Map.EndPoint);
             return DistanceMap[Map.StartPoint];
         }
 

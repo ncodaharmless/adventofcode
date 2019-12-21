@@ -41,17 +41,11 @@ namespace AdventOfCode.Utils
             if (this[index] > distance)
             {
                 this[index] = distance;
-                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Left), distance + 1);
-                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Right), distance + 1);
-                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Up), distance + 1);
-                CorridorDistanceRecursive(map, map.TranslatePoint(from, Direction.Down), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from.MoveDirection(Direction.Left)), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from.MoveDirection(Direction.Right)), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from.MoveDirection(Direction.Up)), distance + 1);
+                CorridorDistanceRecursive(map, map.TranslatePoint(from.MoveDirection(Direction.Down)), distance + 1);
             }
-        }
-
-        struct PointCheck
-        {
-            public Point Point;
-            public int Distance;
         }
 
         /// <summary>
@@ -59,25 +53,27 @@ namespace AdventOfCode.Utils
         /// </summary>
         /// <param name="map"></param>
         /// <param name="from"></param>
-        public void CalculateCorridorDistance(ITraverseMap map, Point from)
+        public void CalculateCorridorDistance<T>(ITraverseMap map, Point from) where T : TraversePointCheck, new()
         {
-            var queue = new Queue<PointCheck>();
-            queue.Enqueue(new PointCheck() { Point = from });
+            var queue = new Queue<TraversePointCheck>();
+            queue.Enqueue(new T() { Point = from });
             while (queue.Count > 0)
             {
-                PointCheck pc = queue.Dequeue();
+                TraversePointCheck pc = queue.Dequeue();
                 if (pc.Point.X < 0 || pc.Point.Y < 0 || pc.Point.X >= map.Width || pc.Point.Y >= map.Height) continue;
 
-                if (!map.CanTraverseTo(pc.Point)) continue;
+                pc.Point = map.TranslatePoint(pc.Point);
+
+                if (!map.CanTraverseTo(pc)) continue;
 
                 int index = pc.Point.Y * map.Width + pc.Point.X;
                 if (this[index] > pc.Distance)
                 {
                     this[index] = pc.Distance;
-                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Up), Distance = pc.Distance + 1 });
-                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Down), Distance = pc.Distance + 1 });
-                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Left), Distance = pc.Distance + 1 });
-                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Right), Distance = pc.Distance + 1 });
+                    queue.Enqueue(pc.MoveTo(Direction.Up));
+                    queue.Enqueue(pc.MoveTo(Direction.Down));
+                    queue.Enqueue(pc.MoveTo(Direction.Left));
+                    queue.Enqueue(pc.MoveTo(Direction.Right));
                 }
             }
         }
@@ -95,17 +91,37 @@ namespace AdventOfCode.Utils
         }
     }
 
+    public class TraversePointCheck
+    {
+        public Point Point;
+        public int Distance;
+
+        public virtual TraversePointCheck Clone()
+        {
+            return new TraversePointCheck() { Point = Point, Distance = Distance };
+        }
+
+        public virtual TraversePointCheck MoveTo(Direction direction)
+        {
+            TraversePointCheck t = Clone();
+            t.Point = t.Point.MoveDirection(direction);
+            t.Distance++;
+            return t;
+        }
+    }
+
     public interface ITraverseMap
     {
         int Width { get; }
         int Height { get; }
 
         bool CanTraverseTo(Point point);
+        bool CanTraverseTo(TraversePointCheck pc);
 
         /// <summary>
         /// for teleportation
         /// </summary>
-        Point TranslatePoint(Point point, Direction dir);
+        Point TranslatePoint(Point point);
     }
 
 }

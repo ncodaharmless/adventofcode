@@ -88,9 +88,13 @@ namespace AdventOfCode.Utils
         {
             return this[point] == '.';
         }
-        public virtual Point TranslatePoint(Point point, Direction dir)
+        public virtual bool CanTraverseTo(TraversePointCheck pc)
         {
-            return point.MoveDirection(dir);
+            return CanTraverseTo(pc.Point);
+        }
+        public virtual Point TranslatePoint(Point point)
+        {
+            return point;
         }
     }
 
