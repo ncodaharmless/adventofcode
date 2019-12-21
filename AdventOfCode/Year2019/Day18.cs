@@ -167,9 +167,10 @@ namespace AdventOfCode.Year2019
 
         private CharMap _Map;
         readonly Point StartLocation;
-        private Dictionary<Point, CharMap.DistanceMap> _OpenDoorDistances = new Dictionary<Point, CharMap.DistanceMap>();
-        private Dictionary<char, GridMap<int>> _KeysRequired = new Dictionary<char, GridMap<int>>();
-        Dictionary<char, Point> _AllKeys;
+        private GridMap<CharMap.DistanceMap> _OpenDoorDistances;
+        private GridMap<int>[] _KeysRequired;
+        string _AllKeys;
+        Point[] _KeyLocations;
         int currentShortest = int.MaxValue;
 
         public Day18(string input = Input)
@@ -177,14 +178,18 @@ namespace AdventOfCode.Year2019
             _Map = new CharMap(input.SplitLine());
             _Map.IsTarget = (c) => char.IsLetter(c) && char.IsLower(c);
 
-            _AllKeys = new Dictionary<char, Point>();
+            _OpenDoorDistances = new GridMap<CharMap.DistanceMap>(_Map.Width, _Map.Height);
+
+            _KeyLocations = new Point[26];
+            _KeysRequired = new GridMap<int>[26];
             foreach (Point keyPos in _Map.FindAll(m => char.IsLetter(m) && char.IsLower(m)))
             {
                 char key = _Map[keyPos];
-                _AllKeys.Add(key, keyPos);
+                _AllKeys += key;
+                _KeyLocations[key.ToLowerCaseInt()] = keyPos;
                 var result = _Map.CorridorDistance(keyPos, w => w == '#');
-                _OpenDoorDistances.Add(keyPos, result.Item1);
-                _KeysRequired.Add(key, result.Item2);
+                _OpenDoorDistances[keyPos] = result.Item1;
+                _KeysRequired[key.ToLowerCaseInt()] = result.Item2;
             }
 
             StartLocation = _Map.FindFirst('@').Value;
@@ -194,7 +199,7 @@ namespace AdventOfCode.Year2019
 
         internal int Part1()
         {
-            int totalDistance = ShortedPathForAllKeys(StartLocation, 0, 0, new string(_AllKeys.Keys.ToArray()));
+            int totalDistance = ShortedPathForAllKeys(StartLocation, 0, 0, _AllKeys);
 
             return totalDistance;
         }
@@ -210,9 +215,9 @@ namespace AdventOfCode.Year2019
             int shortestToFinish = int.MaxValue;
             foreach (char keyChar in remainingKeys)
             {
-                var keyLocation = _AllKeys[keyChar];
+                var keyLocation = _KeyLocations[keyChar.ToLowerCaseInt()];
 
-                var keysRequired = _KeysRequired[keyChar][currentLocation];
+                var keysRequired = _KeysRequired[keyChar.ToLowerCaseInt()][currentLocation];
                 bool hasKeys = HasKeys(keysRequired, keysAquired);
                 if (hasKeys)
                 {

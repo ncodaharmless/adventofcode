@@ -50,5 +50,16 @@ namespace AdventOfCode
             return 1 << (key - 'a');
         }
 
+        /// <summary>
+        /// zero based number value for lower case letters
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static int ToLowerCaseInt(this char key)
+        {
+            return key - 'a';
+        }
+
+
     }
 }
