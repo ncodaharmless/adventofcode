@@ -12,7 +12,7 @@ namespace AdventOfCode.Year2019
 
     class CharMap : GridMap<char>
     {
-     
+
         public Func<char, bool> IsTarget = (c) => false;
 
         public Dictionary<Point, char> Targets;
@@ -261,7 +261,7 @@ namespace AdventOfCode.Year2019
             Assert.AreEqual(132, d.Part1());
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Example4()
         {
             var d = new Day18(@"
@@ -290,7 +290,7 @@ namespace AdventOfCode.Year2019
             Assert.AreEqual(81, d.Part1());
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Part1()
         {
             Assert.AreEqual(0, new Day18().Part1());
