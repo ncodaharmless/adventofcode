@@ -12,34 +12,20 @@ namespace AdventOfCode.Year2019
 
     class CharMap : GridMap<char>
     {
-        public class DistanceMap : GridMap<int>
-        {
-            public int Distance(Point point)
-            {
-                return this[point];
-            }
-
-            public DistanceMap(int width, int height) : base(width, height)
-            {
-                for (int y = 0; y < Height; y++)
-                    for (int x = 0; x < Width; x++)
-                        this[x, y] = int.MaxValue;
-            }
-        }
-
+     
         public Func<char, bool> IsTarget = (c) => false;
 
         public Dictionary<Point, char> Targets;
 
-        public Tuple<DistanceMap, GridMap<int>> CorridorDistance(Point from, Func<char, bool> isWall)
+        public Tuple<GridDistanceMap, GridMap<int>> CorridorDistance(Point from, Func<char, bool> isWall)
         {
             Targets = new Dictionary<Point, char>();
-            var distMap = new DistanceMap(Width, Height);
+            var distMap = new GridDistanceMap(Width, Height);
             var keysReq = new GridMap<int>(Width, Height);
             CorridorDistance(distMap, keysReq, isWall, from, 0, string.Empty);
-            return new Tuple<DistanceMap, GridMap<int>>(distMap, keysReq);
+            return new Tuple<GridDistanceMap, GridMap<int>>(distMap, keysReq);
         }
-        private void CorridorDistance(DistanceMap dist, GridMap<int> keyReq, Func<char, bool> isWall, Point from, int distance, string keysRequired)
+        private void CorridorDistance(GridDistanceMap dist, GridMap<int> keyReq, Func<char, bool> isWall, Point from, int distance, string keysRequired)
         {
             if (from.X < 0 || from.Y < 0 || from.X >= Width || from.Y >= Height) return;
             int index = from.Y * Width + from.X;
@@ -167,7 +153,7 @@ namespace AdventOfCode.Year2019
 
         private CharMap _Map;
         readonly Point StartLocation;
-        private GridMap<CharMap.DistanceMap> _OpenDoorDistances;
+        private GridMap<GridDistanceMap> _OpenDoorDistances;
         private GridMap<int>[] _KeysRequired;
         string _AllKeys;
         Point[] _KeyLocations;
@@ -178,7 +164,7 @@ namespace AdventOfCode.Year2019
             _Map = new CharMap(input.SplitLine());
             _Map.IsTarget = (c) => char.IsLetter(c) && char.IsLower(c);
 
-            _OpenDoorDistances = new GridMap<CharMap.DistanceMap>(_Map.Width, _Map.Height);
+            _OpenDoorDistances = new GridMap<GridDistanceMap>(_Map.Width, _Map.Height);
 
             _KeyLocations = new Point[26];
             _KeysRequired = new GridMap<int>[26];

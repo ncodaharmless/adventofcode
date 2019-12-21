@@ -52,6 +52,7 @@
     <Compile Include="Misc\Powerset.cs" />
     <Compile Include="Utils\CycleFinder.cs" />
     <Compile Include="Utils\Direction.cs" />
+    <Compile Include="Utils\GridDistanceMap.cs" />
     <Compile Include="Utils\GridMap.cs" />
     <Compile Include="Utils\Line.cs" />
     <Compile Include="Utils\MathUtil.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Year2019\Day17.cs" />
     <Compile Include="Year2019\Day18.cs" />
     <Compile Include="Year2019\Day19.cs" />
+    <Compile Include="Year2019\Day20.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

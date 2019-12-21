@@ -72,4 +72,26 @@ namespace AdventOfCode.Utils
             _Data = new T[Width * Height];
         }
     }
+
+    public class GridMapChar : GridMap<char>, ITraverseMap
+    {
+        public GridMapChar(string input) : this(input.SplitLine()) { }
+        public GridMapChar(string[] lines) : base(lines[0].Length, lines.Length)
+        {
+            _Data = new char[Height * Width];
+            for (int y = 0; y < Height; y++)
+                for (int x = 0; x < Width; x++)
+                    _Data[y * Width + x] = lines[y][x];
+        }
+
+        public virtual bool CanTraverseTo(Point point)
+        {
+            return this[point] == '.';
+        }
+        public virtual Point TranslatePoint(Point point, Direction dir)
+        {
+            return point.MoveDirection(dir);
+        }
+    }
+
 }
