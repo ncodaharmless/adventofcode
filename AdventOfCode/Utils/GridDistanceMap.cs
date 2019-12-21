@@ -21,6 +21,11 @@ namespace AdventOfCode.Utils
                     this[x, y] = int.MaxValue;
         }
 
+        /// <summary>
+        /// Depth first search
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="from"></param>
         public void CalculateCorridorDistanceRecursive(ITraverseMap map, Point from)
         {
             CorridorDistanceRecursive(map, from, 0);
@@ -49,6 +54,11 @@ namespace AdventOfCode.Utils
             public int Distance;
         }
 
+        /// <summary>
+        /// Bredth first search
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="from"></param>
         public void CalculateCorridorDistance(ITraverseMap map, Point from)
         {
             var queue = new Queue<PointCheck>();
