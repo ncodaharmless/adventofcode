@@ -8,8 +8,8 @@ namespace AdventOfCode.Utils
 {
     public class GridMap<T>
     {
-        public readonly int Width;
-        public readonly int Height;
+        public int Width { get; }
+        public int Height { get; }
         protected T[] _Data;
 
         public T this[int i]

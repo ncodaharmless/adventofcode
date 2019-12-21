@@ -21,7 +21,7 @@ namespace AdventOfCode.Utils
                     this[x, y] = int.MaxValue;
         }
 
-        public void CalculateCorridorDistance(ITraverseMap map, Point from)
+        public void CalculateCorridorDistanceRecursive(ITraverseMap map, Point from)
         {
             CorridorDistance(map, from, 0);
         }
@@ -43,6 +43,35 @@ namespace AdventOfCode.Utils
             }
         }
 
+        struct PointCheck
+        {
+            public Point Point;
+            public int Distance;
+        }
+
+        public void CalculateCorridorDistance(ITraverseMap map, Point from)
+        {
+            var queue = new Queue<PointCheck>();
+            queue.Enqueue(new PointCheck() { Point = from });
+            while (queue.Count > 0)
+            {
+                PointCheck pc = queue.Dequeue();
+                if (pc.Point.X < 0 || pc.Point.Y < 0 || pc.Point.X >= map.Width || pc.Point.Y >= map.Height) continue;
+
+                if (!map.CanTraverseTo(pc.Point)) continue;
+
+                int index = pc.Point.Y * map.Width + pc.Point.X;
+                if (this[index] > pc.Distance)
+                {
+                    this[index] = pc.Distance;
+                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Up), Distance = pc.Distance + 1 });
+                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Down), Distance = pc.Distance + 1 });
+                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Left), Distance = pc.Distance + 1 });
+                    queue.Enqueue(new PointCheck() { Point = map.TranslatePoint(pc.Point, Direction.Right), Distance = pc.Distance + 1 });
+                }
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -58,6 +87,9 @@ namespace AdventOfCode.Utils
 
     public interface ITraverseMap
     {
+        int Width { get; }
+        int Height { get; }
+
         bool CanTraverseTo(Point point);
 
         /// <summary>

@@ -236,6 +236,13 @@ AE..#...#...#.#.#...#.......#.#                                                 
         {
             List<GridDistanceMap> _LevelDistances = new List<GridDistanceMap>();
 
+            struct PointCheck
+            {
+                public Point Point;
+                public int Distance;
+                public int Level;
+            }
+
             public int DistanceTo(Point point)
             {
                 return _LevelDistances[0][point];
@@ -243,33 +250,33 @@ AE..#...#...#.#.#...#.......#.#                                                 
 
             public void CalculateCorridorDistance(MazeMap map, Point from)
             {
-                CorridorDistance(map, from, 0, 0);
-            }
-
-            private void CorridorDistance(MazeMap map, Point from, int distance, int level)
-            {
-                if (level >= _LevelDistances.Count)
-                    _LevelDistances.Add(new GridDistanceMap(map.Width, map.Height));
-                if (from.X < 0 || from.Y < 0 || from.X >= map.Width || from.Y >= map.Height) return;
-
-                if (!map.CanTraverseTo(from)) return;
-
-                int index = from.Y * map.Width + from.X;
-                if (_LevelDistances[level][index] > distance)
+                var queue = new Queue<PointCheck>();
+                queue.Enqueue(new PointCheck() { Point = from });
+                while (queue.Count > 0)
                 {
-                    _LevelDistances[level][index] = distance;
-                    Move(map, from, distance, level, Direction.Left);
-                    Move(map, from, distance, level, Direction.Right);
-                    Move(map, from, distance, level, Direction.Up);
-                    Move(map, from, distance, level, Direction.Down);
+                    PointCheck pc = queue.Dequeue();
+                    if (pc.Point.X < 0 || pc.Point.Y < 0 || pc.Point.X >= map.Width || pc.Point.Y >= map.Height) continue;
+                    if (pc.Level >= _LevelDistances.Count)
+                        _LevelDistances.Add(new GridDistanceMap(map.Width, map.Height));
+                    if (!map.CanTraverseTo(pc.Point)) continue;
+
+                    int index = pc.Point.Y * map.Width + pc.Point.X;
+                    if (_LevelDistances[pc.Level][index] > pc.Distance)
+                    {
+                        _LevelDistances[pc.Level][index] = pc.Distance;
+                        Move(map, queue, pc, Direction.Left);
+                        Move(map, queue, pc, Direction.Right);
+                        Move(map, queue, pc, Direction.Up);
+                        Move(map, queue, pc, Direction.Down);
+                    }
                 }
             }
 
-            private void Move(MazeMap map, Point from, int distance, int level, Direction dir)
+            private void Move(MazeMap map, Queue<PointCheck> queue, PointCheck pc, Direction dir)
             {
-                int levelToPoint = level;
-                Point next = map.TranslatePoint(from, dir, ref levelToPoint);
-                CorridorDistance(map, next, distance + 1, levelToPoint);
+                int levelToPoint = pc.Level;
+                Point next = map.TranslatePoint(pc.Point, dir, ref levelToPoint);
+                queue.Enqueue(new PointCheck() { Point = next, Level = levelToPoint, Distance = pc.Distance + 1 });
             }
 
         }
@@ -431,7 +438,7 @@ RE....#.#                           #......RF
         [TestMethod]
         public void Part2()
         {
-            Assert.AreEqual(0, new Day20().Part2());
+            Assert.AreEqual(6546, new Day20().Part2());
         }
     }
 
