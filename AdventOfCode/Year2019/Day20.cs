@@ -133,15 +133,17 @@ AE..#...#...#.#.#...#.......#.#                                                 
 
         internal class TeleportPoint
         {
-            public TeleportPoint(char a, char b, int x, int y, Direction dir)
+            public TeleportPoint(char a, char b, int x, int y, Direction dir, bool isOuter)
             {
                 Code = $"{a}{b}";
                 Point = new Point(x, y);
                 LandingPoint = Point.MoveDirection(dir);
+                IsOuter = isOuter;
             }
             public readonly string Code;
             public Point Point;
             public Point LandingPoint;
+            public bool IsOuter;
 
             public override string ToString()
             {
@@ -154,6 +156,9 @@ AE..#...#...#.#.#...#.......#.#                                                 
             public List<TeleportPoint> Teleports = new List<TeleportPoint>();
             public Point StartPoint;
             public Point EndPoint;
+            public bool TrackLevels;
+            public int MaxLevel = 15;
+
             public MazeMap(string input) : base(input)
             {
                 int innerDistance = 2;
@@ -162,26 +167,29 @@ AE..#...#...#.#.#...#.......#.#                                                 
                 for (int x = 1; x < Width - 2; x++)
                 {
                     if (char.IsLetter(this[x, 1]))
-                        Teleports.Add(new TeleportPoint(this[x, 0], this[x, 1], x, 1, Direction.Down));
+                        Teleports.Add(new TeleportPoint(this[x, 0], this[x, 1], x, 1, Direction.Down, true));
                     if (x > innerDistance && x < Width - innerDistance && char.IsLetter(this[x, innerDistance + 1]))
-                        Teleports.Add(new TeleportPoint(this[x, innerDistance], this[x, innerDistance + 1], x, innerDistance, Direction.Up));
+                        Teleports.Add(new TeleportPoint(this[x, innerDistance], this[x, innerDistance + 1], x, innerDistance, Direction.Up, false));
 
                     if (char.IsLetter(this[x, Height - 2]))
-                        Teleports.Add(new TeleportPoint(this[x, Height - 2], this[x, Height - 1], x, Height - 2, Direction.Up));
+                        Teleports.Add(new TeleportPoint(this[x, Height - 2], this[x, Height - 1], x, Height - 2, Direction.Up, true));
                     if (x > innerDistance && x < Width - innerDistance && char.IsLetter(this[x, Height - innerDistance - 1]))
-                        Teleports.Add(new TeleportPoint(this[x, Height - innerDistance - 2], this[x, Height - innerDistance - 1], x, Height - innerDistance - 1, Direction.Down));
+                        Teleports.Add(new TeleportPoint(this[x, Height - innerDistance - 2], this[x, Height - innerDistance - 1], x, Height - innerDistance - 1, Direction.Down, false));
                 }
                 for (int y = 1; y < Height - 2; y++)
                 {
+                    // left wall
                     if (char.IsLetter(this[1, y]))
-                        Teleports.Add(new TeleportPoint(this[0, y], this[1, y], 1, y, Direction.Right));
+                        Teleports.Add(new TeleportPoint(this[0, y], this[1, y], 1, y, Direction.Right, true));
+                    // left wall inner
                     if (y > innerDistance && y < Height - innerDistance && char.IsLetter(this[innerDistance, y]))
-                        Teleports.Add(new TeleportPoint(this[innerDistance, y], this[innerDistance + 1, y], innerDistance, y, Direction.Left));
+                        Teleports.Add(new TeleportPoint(this[innerDistance, y], this[innerDistance + 1, y], innerDistance, y, Direction.Left, false));
                     // right wall
                     if (char.IsLetter(this[Width - 2, y]))
-                        Teleports.Add(new TeleportPoint(this[Width - 2, y], this[Width - 1, y], Width - 2, y, Direction.Left));
+                        Teleports.Add(new TeleportPoint(this[Width - 2, y], this[Width - 1, y], Width - 2, y, Direction.Left, true));
+                    // right wall inner
                     if (y > innerDistance && y < Height - innerDistance && char.IsLetter(this[Width - innerDistance - 1, y]))
-                        Teleports.Add(new TeleportPoint(this[Width - innerDistance - 2, y], this[Width - innerDistance - 1, y], Width - innerDistance - 1, y, Direction.Right));
+                        Teleports.Add(new TeleportPoint(this[Width - innerDistance - 2, y], this[Width - innerDistance - 1, y], Width - innerDistance - 1, y, Direction.Right, false));
                 }
                 StartPoint = Teleports.Where(t => t.Code == "AA").Single().LandingPoint;
                 EndPoint = Teleports.Where(t => t.Code == "ZZ").Single().LandingPoint;
@@ -196,11 +204,23 @@ AE..#...#...#.#.#...#.......#.#                                                 
 
             public override Point TranslatePoint(Point point, Direction dir)
             {
+                int x = 0;
+                return TranslatePoint(point, dir, ref x);
+            }
+
+            public Point TranslatePoint(Point point, Direction dir, ref int level)
+            {
                 Point next = point.MoveDirection(dir);
                 char pointChar = this[next];
                 if (char.IsLetter(pointChar))
                 {
                     TeleportPoint teleport = Teleports.Single(t => t.Point == next);
+                    if (TrackLevels)
+                    {
+                        if (!teleport.IsOuter && level >= MaxLevel) return next;
+                        if (teleport.IsOuter && level <= 0) return next;
+                        level += teleport.IsOuter ? -1 : 1;
+                    }
                     if (teleport.Code != "AA" && teleport.Code != "ZZ")
                     {
                         TeleportPoint teleportOtherSide = Teleports.Single(t => t.Code == teleport.Code && t.Point != next);
@@ -212,26 +232,79 @@ AE..#...#...#.#.#...#.......#.#                                                 
 
         }
 
+        public class GridDistanceMapTrackLevels
+        {
+            List<GridDistanceMap> _LevelDistances = new List<GridDistanceMap>();
+
+            public int DistanceTo(Point point)
+            {
+                return _LevelDistances[0][point];
+            }
+
+            public void CalculateCorridorDistance(MazeMap map, Point from)
+            {
+                CorridorDistance(map, from, 0, 0);
+            }
+
+            private void CorridorDistance(MazeMap map, Point from, int distance, int level)
+            {
+                if (level >= _LevelDistances.Count)
+                    _LevelDistances.Add(new GridDistanceMap(map.Width, map.Height));
+                if (from.X < 0 || from.Y < 0 || from.X >= map.Width || from.Y >= map.Height) return;
+
+                if (!map.CanTraverseTo(from)) return;
+
+                int index = from.Y * map.Width + from.X;
+                if (_LevelDistances[level][index] > distance)
+                {
+                    _LevelDistances[level][index] = distance;
+                    Move(map, from, distance, level, Direction.Left);
+                    Move(map, from, distance, level, Direction.Right);
+                    Move(map, from, distance, level, Direction.Up);
+                    Move(map, from, distance, level, Direction.Down);
+                }
+            }
+
+            private void Move(MazeMap map, Point from, int distance, int level, Direction dir)
+            {
+                int levelToPoint = level;
+                Point next = map.TranslatePoint(from, dir, ref levelToPoint);
+                CorridorDistance(map, next, distance + 1, levelToPoint);
+            }
+
+        }
+
+
         public MazeMap Map;
-        public GridDistanceMap DistanceMap;
 
         public Day20(string input = Input)
         {
             Map = new MazeMap(input);
-            DistanceMap = new GridDistanceMap(Map.Width, Map.Height);
         }
 
         internal int Part1()
         {
+            var DistanceMap = new GridDistanceMap(Map.Width, Map.Height);
             DistanceMap.CalculateCorridorDistance(Map, Map.EndPoint);
             return DistanceMap[Map.StartPoint];
         }
 
         internal int Part2()
         {
-            throw new NotImplementedException();
+            Map.TrackLevels = true;
+            while (true)
+            {
+                var DistanceMap = new GridDistanceMapTrackLevels();
+                DistanceMap.CalculateCorridorDistance(Map, Map.EndPoint);
+                int dist = DistanceMap.DistanceTo(Map.StartPoint);
+                if (dist != int.MaxValue)
+                    return dist;
+                Map.MaxLevel++;
+            }
         }
+
     }
+
 
     [TestClass]
     public class TestDay20
@@ -304,6 +377,50 @@ YN......#               VT..#....QG
            B   J   C               
            U   P   P               ");
             Assert.AreEqual(58, d.Part1());
+        }
+
+        [TestMethod]
+        public void Example3()
+        {
+            var d = new Day20(@"
+             Z L X W       C                 
+             Z P Q B       K                 
+  ###########.#.#.#.#######.###############  
+  #...#.......#.#.......#.#.......#.#.#...#  
+  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  
+  #.#...#.#.#...#.#.#...#...#...#.#.......#  
+  #.###.#######.###.###.#.###.###.#.#######  
+  #...#.......#.#...#...#.............#...#  
+  #.#########.#######.#.#######.#######.###  
+  #...#.#    F       R I       Z    #.#.#.#  
+  #.###.#    D       E C       H    #.#.#.#  
+  #.#...#                           #...#.#  
+  #.###.#                           #.###.#  
+  #.#....OA                       WB..#.#..ZH
+  #.###.#                           #.#.#.#  
+CJ......#                           #.....#  
+  #######                           #######  
+  #.#....CK                         #......IC
+  #.###.#                           #.###.#  
+  #.....#                           #...#.#  
+  ###.###                           #.#.#.#  
+XF....#.#                         RF..#.#.#  
+  #####.#                           #######  
+  #......CJ                       NM..#...#  
+  ###.#.#                           #.###.#  
+RE....#.#                           #......RF
+  ###.###        X   X       L      #.#.#.#  
+  #.....#        F   Q       P      #.#.#.#  
+  ###.###########.###.#######.#########.###  
+  #.....#...#.....#.......#...#.....#.#...#  
+  #####.#.###.#######.#######.###.###.#.#.#  
+  #.......#.......#.#.#.#.#...#...#...#.#.#  
+  #####.###.#####.#.#.#.#.###.###.#.###.###  
+  #.......#.....#.#...#...............#...#  
+  #############.#.#.###.###################  
+               A O F   N                     
+               A A D   M                     ");
+            Assert.AreEqual(396, d.Part2());
         }
 
         [TestMethod]
