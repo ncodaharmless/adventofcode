@@ -213,28 +213,23 @@ namespace AdventOfCode.Year2019
                 return distance;
             }
             int shortestToFinish = int.MaxValue;
-            foreach (char keyChar in remainingKeys)
+            Parallel.ForEach(remainingKeys, (keyChar) =>
             {
-                var keyLocation = _KeyLocations[keyChar.ToLowerCaseInt()];
+                Point keyLocation = _KeyLocations[keyChar.ToLowerCaseInt()];
 
-                var keysRequired = _KeysRequired[keyChar.ToLowerCaseInt()][currentLocation];
-                bool hasKeys = HasKeys(keysRequired, keysAquired);
-                if (hasKeys)
+                int keysRequired = _KeysRequired[keyChar.ToLowerCaseInt()][currentLocation];
+                if (keysRequired == (keysAquired & keysRequired))
                 {
                     int distToThisKey = _OpenDoorDistances[keyLocation][currentLocation] + distance;
-                    if (distToThisKey >= currentShortest)
-                        continue;
-                    var thisDist = ShortedPathForAllKeys(keyLocation, distToThisKey, keysAquired | keyChar.ToLowerCaseCharMask(), remainingKeys.Remove(remainingKeys.IndexOf(keyChar), 1));
-                    if (thisDist < shortestToFinish)
-                        shortestToFinish = thisDist;
+                    if (distToThisKey < currentShortest)
+                    {
+                        int thisDist = ShortedPathForAllKeys(keyLocation, distToThisKey, keysAquired | keyChar.ToLowerCaseCharMask(), remainingKeys.Remove(remainingKeys.IndexOf(keyChar), 1));
+                        if (thisDist < shortestToFinish)
+                            shortestToFinish = thisDist;
+                    }
                 }
-            }
+            });
             return shortestToFinish;
-        }
-
-        private bool HasKeys(int required, int aquiredMask)
-        {
-            return required == (aquiredMask & required);
         }
 
         internal int Part2()
