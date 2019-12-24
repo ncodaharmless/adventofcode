@@ -26,9 +26,7 @@ namespace AdventOfCode.Year2019
 
         internal int Part1()
         {
-            // set network address
-            for (int i = 0; i < cmp.Length; i++)
-                cmp[i].InputQueue.Enqueue(i);
+            Init();
 
             while (true)
             {
@@ -55,8 +53,67 @@ namespace AdventOfCode.Year2019
             throw new NotSupportedException();
         }
 
+        private void Init()
+        {
+            // set network address
+            for (int i = 0; i < cmp.Length; i++)
+                cmp[i].InputQueue.Enqueue(i);
+        }
+
         internal int Part2()
         {
+            Init();
+            long NatPreviousY = 0;
+            long NatValueX = 0;
+            long NatValueY = 0;
+            bool hasNatValue = false;
+            bool[] isIdle = new bool[cmp.Length];
+            while (true)
+            {
+                for (int i = 0; i < cmp.Length; i++)
+                {
+                    if (!cmp[i].IsReady)
+                    {
+                        cmp[i].InputQueue.Enqueue(-1);
+                        isIdle[i] = true;
+                    }
+                }
+                if (hasNatValue && isIdle.All(i => i))
+                {
+                    cmp[0].InputQueue.Enqueue(NatValueX);
+                    cmp[0].InputQueue.Enqueue(NatValueY);
+                    hasNatValue = false;
+                    if (NatPreviousY > 0 && NatPreviousY == NatValueY)
+                    {
+                        return (int)NatPreviousY;
+                    }
+                    NatPreviousY = NatValueY;
+                }
+
+                for (int i = 0; i < cmp.Length; i++)
+                {
+                    cmp[i].RunNext();
+                    while (cmp[i].Output.Count >= 3)
+                    {
+                        long compIndex = cmp[i].Output.Dequeue();
+                        long x = cmp[i].Output.Dequeue();
+                        long y = cmp[i].Output.Dequeue();
+                        if (compIndex < 50)
+                        {
+                            isIdle[compIndex] = false;
+                            cmp[compIndex].InputQueue.Enqueue(x);
+                            cmp[compIndex].InputQueue.Enqueue(y);
+                        }
+                        else if (compIndex == 255)
+                        {
+                            hasNatValue = true;
+                            NatValueX = x;
+                            NatValueY = y;
+                        }
+                        else throw new NotSupportedException();
+                    }
+                }
+            }
             throw new NotImplementedException();
         }
     }
@@ -72,7 +129,7 @@ namespace AdventOfCode.Year2019
         [TestMethod]
         public void Part2()
         {
-            Assert.AreEqual(0, new Day23().Part2());
+            Assert.AreEqual(14257, new Day23().Part2());
         }
     }
 
